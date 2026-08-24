@@ -1,4 +1,4 @@
-"""Ordnet eine gelesene Chip-/Ohrmarken-Nummer einem Tier zu.
+"""Ordnet eine gelesene Chip-/Tätowierung-Nummer einem Tier zu.
 
 Wird sowohl vom Bewertungskarten-Scan als auch vom Bluetooth-Chip-Scanner
 genutzt. Karten und mancher Leser liefern oft nur die letzten paar Stellen

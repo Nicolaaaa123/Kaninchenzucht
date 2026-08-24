@@ -96,6 +96,12 @@ export function StallPlan() {
     unassigned.reload();
   }
 
+  async function handleCapacityChange(boxId: string, capacity: number) {
+    if (!capacity || capacity < 1) return;
+    await api.stalls.updateBox(boxId, { capacity });
+    stalls.reload();
+  }
+
   const freeAnimals = unassigned.data ?? [];
   const visibleStalls = (stalls.data ?? []).filter((s) => {
     if (activePageId === "all") return true;
@@ -235,48 +241,66 @@ export function StallPlan() {
               }}
             >
               {stall.boxes.map((box) => {
-                const occupant = box.occupants[0];
+                const occupants = box.occupants;
+                const hasSpace = occupants.length < box.capacity;
                 return (
                   <div
-                    className={`cage-box ${occupant ? "occupied" : ""}`}
+                    className={`cage-box ${occupants.length > 0 ? "occupied" : ""}`}
                     key={box.id}
                     style={{ gridRow: box.row_index + 1, gridColumn: box.col_index + 1 }}
                   >
                     <div>
-                      <div className="box-label">Box {box.label}</div>
-                      {occupant ? (
-                        <>
-                          <Link to={`/tiere/${occupant.id}`} className="occupant">
-                            {occupant.chip_number} {occupant.name ? `· ${occupant.name}` : ""}
-                          </Link>
-                          <div className="occupant-meta">{occupant.breed?.name ?? ""}</div>
-                          {occupant.daily_feed_grams && (
-                            <div className="feed-hint">
-                              {occupant.daily_feed_grams} g/Tag
-                              {occupant.container_fill_pct != null && ` · ${occupant.container_fill_pct}% Behälter`}
-                            </div>
-                          )}
-                        </>
+                      <div className="box-label">
+                        Box {box.label} · {occupants.length}/
+                        <input
+                          type="number"
+                          min={1}
+                          value={box.capacity}
+                          onChange={(e) => handleCapacityChange(box.id, Number(e.target.value))}
+                          title="Kapazität dieser Box"
+                          className="box-capacity-input"
+                        />
+                      </div>
+                      {occupants.length > 0 ? (
+                        occupants.map((occupant) => (
+                          <div className="occupant-row" key={occupant.id}>
+                            <Link to={`/tiere/${occupant.id}`} className="occupant">
+                              {occupant.chip_number} {occupant.name ? `· ${occupant.name}` : ""}
+                            </Link>
+                            <div className="occupant-meta">{occupant.breed?.name ?? ""}</div>
+                            {occupant.daily_feed_grams && (
+                              <div className="feed-hint">
+                                {occupant.daily_feed_grams} g/Tag
+                                {occupant.container_fill_pct != null && ` · ${occupant.container_fill_pct}% Behälter`}
+                              </div>
+                            )}
+                            <button
+                              className="btn secondary small"
+                              onClick={() => handleUnassign(occupant.id)}
+                              style={{ marginTop: 4 }}
+                            >
+                              Entfernen
+                            </button>
+                          </div>
+                        ))
                       ) : (
                         <div className="occupant-meta">frei</div>
                       )}
                     </div>
-                    {occupant ? (
-                      <button className="btn secondary small" onClick={() => handleUnassign(occupant.id)}>
-                        Entfernen
-                      </button>
-                    ) : (
+                    {hasSpace && (
                       <select
                         value=""
                         onChange={(e) => handleAssign(box.id, e.target.value)}
                         style={{ fontSize: "0.78rem", padding: "5px 6px" }}
                       >
                         <option value="">Tier zuordnen…</option>
-                        {freeAnimals.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.chip_number} {a.name ? `· ${a.name}` : ""}
-                          </option>
-                        ))}
+                        {freeAnimals
+                          .filter((a) => !occupants.some((o) => o.id === a.id))
+                          .map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.chip_number} {a.name ? `· ${a.name}` : ""}
+                            </option>
+                          ))}
                       </select>
                     )}
                   </div>

@@ -18,13 +18,13 @@ TOOL_DEFS: list[dict[str, Any]] = [
         "name": "search_animals",
         "description": (
             "Sucht Tiere im Zuchtbestand nach Rasse, Geschlecht, Status oder Freitext "
-            "(Chip-Nummer, Ohrmarke oder Name). Alle Parameter sind optional; ohne "
+            "(Chip-Nummer, Tätowierung oder Name). Alle Parameter sind optional; ohne "
             "Parameter werden alle Tiere zurückgegeben (max. 50)."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "search": {"type": "string", "description": "Freitext für Chip-Nummer/Ohrmarke/Name"},
+                "search": {"type": "string", "description": "Freitext für Chip-Nummer/Tätowierung/Name"},
                 "breed_name": {"type": "string", "description": "Rassename, z.B. 'Farbenzwerg'"},
                 "sex": {"type": "string", "enum": ["male", "female", "unknown"]},
                 "status": {"type": "string", "enum": ["active", "sold", "deceased", "retired"]},
@@ -36,7 +36,7 @@ TOOL_DEFS: list[dict[str, Any]] = [
         "description": (
             "Liefert alle Details zu einem Tier: Stammdaten, Rasse, Box, Eltern, "
             "Gewichtshistorie und alle Bewertungen. Identifizierung per Chip-Nummer, "
-            "Ohrmarke oder (Teil-)Name."
+            "Tätowierung oder (Teil-)Name."
         ),
         "input_schema": {
             "type": "object",

@@ -85,7 +85,7 @@ export function AnimalNew() {
             />
           </div>
           <div className="field">
-            <label htmlFor="tattoo-number">Ohrmarke (optional)</label>
+            <label htmlFor="tattoo-number">Tätowierung (optional)</label>
             <input
               id="tattoo-number"
               type="text"

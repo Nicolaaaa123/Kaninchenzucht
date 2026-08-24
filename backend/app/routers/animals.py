@@ -154,7 +154,7 @@ def pairing_check(
 def lookup_animal(
     identifier: str, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
 ):
-    """Ordnet eine gelesene Chip-/Ohrmarken-Nummer einem Tier zu (z.B. für den
+    """Ordnet eine gelesene Chip-/Tätowierung-Nummer einem Tier zu (z.B. für den
     Bluetooth-Chip-Scanner). Unterstützt auch nur die letzten paar Stellen."""
     matched, candidates = match_animal_by_identifier(db, identifier, current_user.tenant_id)
     return schemas.AnimalLookupOut(

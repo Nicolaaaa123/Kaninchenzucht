@@ -163,7 +163,7 @@ export function ScanEvaluationCard() {
                 </select>
                 {result.identification_number && !result.matched_animal && result.candidate_animals.length === 0 && (
                   <p className="hint">
-                    Erkannte Chip-/Ohrmarken-Nummer "{result.identification_number}" konnte keinem Tier
+                    Erkannte Chip-/Tätowierungs-Nummer "{result.identification_number}" konnte keinem Tier
                     zugeordnet werden.
                   </p>
                 )}

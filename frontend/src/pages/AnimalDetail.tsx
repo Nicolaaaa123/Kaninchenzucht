@@ -371,7 +371,7 @@ export function AnimalDetail() {
               </tr>
               {a.tattoo_number && (
                 <tr>
-                  <th>Ohrmarke</th>
+                  <th>Tätowierung</th>
                   <td>{a.tattoo_number}</td>
                 </tr>
               )}
@@ -423,7 +423,7 @@ export function AnimalDetail() {
               <input id="edit-chip" type="text" value={chipNumber} onChange={(e) => setChipNumber(e.target.value)} />
             </div>
             <div className="field">
-              <label htmlFor="edit-tattoo">Ohrmarke</label>
+              <label htmlFor="edit-tattoo">Tätowierung</label>
               <input id="edit-tattoo" type="text" value={tattooNumber} onChange={(e) => setTattooNumber(e.target.value)} />
             </div>
             <div className="field">

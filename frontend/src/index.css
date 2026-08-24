@@ -813,6 +813,31 @@ th {
   margin-top: 4px;
 }
 
+.box-capacity-input {
+  width: 28px;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0;
+}
+
+.occupant-row {
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.occupant-row:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
 /* Stammbaum */
 .pedigree-tree {
   overflow-x: auto;
