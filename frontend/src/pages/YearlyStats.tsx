@@ -93,7 +93,12 @@ export function YearlyStats() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
                 <YAxis domain={[0, chartMax ?? "auto"]} tick={{ fontSize: 12 }} width={40} />
-                <Tooltip formatter={(value: number) => [chartMax ? `${value} / ${chartMax}` : value, "Ø Punkte"]} />
+                <Tooltip
+                  formatter={(value: unknown) => [
+                    chartMax ? `${String(value)} / ${chartMax}` : String(value),
+                    "Ø Punkte",
+                  ]}
+                />
                 <Line type="monotone" dataKey="points" name="Ø Punkte" stroke="#4338ca" strokeWidth={2} dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
