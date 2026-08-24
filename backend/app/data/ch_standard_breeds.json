@@ -1,0 +1,1849 @@
+[
+  {
+    "name": "Farbenzwerg",
+    "abbr": "FZw",
+    "line": 1046,
+    "min_kg": "1.1",
+    "ideal_min_kg": "1.25",
+    "ideal_max_kg": "1.4",
+    "max_kg": "1.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "dwarf"
+  },
+  {
+    "name": "Hermelin",
+    "abbr": "Herm",
+    "line": 1549,
+    "min_kg": "1.1",
+    "ideal_min_kg": "1.25",
+    "ideal_max_kg": "1.4",
+    "max_kg": "1.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "dwarf"
+  },
+  {
+    "name": "Zwergschecke",
+    "abbr": "ZwSch",
+    "line": 1636,
+    "min_kg": "1.3",
+    "ideal_min_kg": "1.5",
+    "ideal_max_kg": "1.75",
+    "max_kg": "1.9",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "dwarf"
+  },
+  {
+    "name": "Zwergwidder",
+    "abbr": "ZwW",
+    "line": 1780,
+    "min_kg": "1.7",
+    "ideal_min_kg": "1.85",
+    "ideal_max_kg": "2.1",
+    "max_kg": "2.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "dwarf"
+  },
+  {
+    "name": "Kleinrex",
+    "abbr": "KlRex",
+    "line": 2120,
+    "min_kg": "1.8",
+    "ideal_min_kg": "2.0",
+    "ideal_max_kg": "2.3",
+    "max_kg": "2.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Rexfaktor",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Russen",
+    "abbr": "R",
+    "line": 2350,
+    "min_kg": "2.0",
+    "ideal_min_kg": "2.3",
+    "ideal_max_kg": "2.6",
+    "max_kg": "2.8",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Deckfarbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Abzeichen an Kopf und Ohren",
+        "points": 15
+      },
+      {
+        "label": "Abzeichen an Läufen und Blume",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Schweizer Feh",
+    "abbr": "Feh",
+    "line": 2448,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Perlung",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Englische Schecke",
+    "abbr": "ESch",
+    "line": 2548,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Schweizer Dreifarben-Kleinschecke",
+    "abbr": "DrfKlSch",
+    "line": 2716,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farben, Farbenverteilung und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Holländer",
+    "abbr": "Ho",
+    "line": 2861,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Unterfarbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Sachsengold",
+    "abbr": "SaG",
+    "line": 3062,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "GIeichmässigkeit",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Havanna",
+    "abbr": "Hav",
+    "line": 3152,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Alaska",
+    "abbr": "Al",
+    "line": 3236,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.7",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Kleinsilber",
+    "abbr": "Kl-S",
+    "line": 3318,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.8",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Silberung und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Gleichmässige Silberung aller Körperteile",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Loh",
+    "abbr": "L",
+    "line": 3476,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.8",
+    "ideal_max_kg": "3.1",
+    "max_kg": "3.3",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Unterfarbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Lohabzeichen Kopfpartie",
+        "points": 10
+      },
+      {
+        "label": "Lohabzeichen Rumpfpartie",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Deilenaar",
+    "abbr": "DL",
+    "line": 3623,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.8",
+    "ideal_max_kg": "3.2",
+    "max_kg": "3.4",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Schattierung und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Rhön",
+    "abbr": "Rh",
+    "line": 3724,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.8",
+    "ideal_max_kg": "3.2",
+    "max_kg": "3.4",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe",
+        "points": 10
+      },
+      {
+        "label": "Zeichnung",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Marder",
+    "abbr": "M",
+    "line": 3825,
+    "min_kg": "2.5",
+    "ideal_min_kg": "2.8",
+    "ideal_max_kg": "3.2",
+    "max_kg": "3.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Kleinwidder",
+    "abbr": "Kl-W",
+    "line": 3919,
+    "min_kg": "2.6",
+    "ideal_min_kg": "2.9",
+    "ideal_max_kg": "3.2",
+    "max_kg": "3.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Schweizer Fuchs",
+    "abbr": "Fuchs",
+    "line": 4154,
+    "min_kg": "2.6",
+    "ideal_min_kg": "2.9",
+    "ideal_max_kg": "3.3",
+    "max_kg": "3.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Unterfarbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Brust- und Bauchbehaarung",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "small"
+  },
+  {
+    "name": "Chinchilla",
+    "abbr": "Ch",
+    "line": 4325,
+    "min_kg": "3.2",
+    "ideal_min_kg": "3.4",
+    "ideal_max_kg": "3.8",
+    "max_kg": "4",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Zwischenfarbe",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Tschechische Schecke",
+    "abbr": "TschSch",
+    "min_kg": "3.3",
+    "ideal_min_kg": "3.5",
+    "ideal_max_kg": "3.9",
+    "max_kg": "4.2",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Hasen",
+    "abbr": "Ha",
+    "line": 4584,
+    "min_kg": "3.3",
+    "ideal_min_kg": "3.5",
+    "ideal_max_kg": "3.9",
+    "max_kg": "4.2",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Schattierung und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Japaner",
+    "abbr": "Ja",
+    "line": 4688,
+    "min_kg": "3.3",
+    "ideal_min_kg": "3.5",
+    "ideal_max_kg": "4",
+    "max_kg": "4.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Kalifornier",
+    "abbr": "K",
+    "line": 4799,
+    "min_kg": "3.5",
+    "ideal_min_kg": "3.7",
+    "ideal_max_kg": "4.2",
+    "max_kg": "4.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe",
+        "points": 10
+      },
+      {
+        "label": "Abzeichen",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Thüringer",
+    "abbr": "Th",
+    "line": 4897,
+    "min_kg": "3.5",
+    "ideal_min_kg": "3.7",
+    "ideal_max_kg": "4.2",
+    "max_kg": "4.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Schattierung und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Hotot",
+    "abbr": "Ht",
+    "line": 4996,
+    "min_kg": "3.5",
+    "ideal_min_kg": "3.8",
+    "ideal_max_kg": "4.3",
+    "max_kg": "4.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Augen und Augenring",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Weisswiener",
+    "abbr": "WW",
+    "line": 5087,
+    "min_kg": "3.5",
+    "ideal_min_kg": "3.8",
+    "ideal_max_kg": "4.3",
+    "max_kg": "4.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Farbe des Auges",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Dreifarbenschecke",
+    "abbr": "DrfSch",
+    "line": 5173,
+    "min_kg": "3.5",
+    "ideal_min_kg": "4",
+    "ideal_max_kg": "4.5",
+    "max_kg": "5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farben, Farbenverteilung und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Rexkaninchen",
+    "abbr": "Rex",
+    "line": 5312,
+    "min_kg": "3.5",
+    "ideal_min_kg": "4",
+    "ideal_max_kg": "4.7",
+    "max_kg": "5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Rexfaktor",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Burgunder",
+    "abbr": "B",
+    "line": 5595,
+    "min_kg": "3.5",
+    "ideal_min_kg": "4",
+    "ideal_max_kg": "4.7",
+    "max_kg": "5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Blauwiener",
+    "abbr": "BW",
+    "line": 5688,
+    "min_kg": "3.5",
+    "ideal_min_kg": "4",
+    "ideal_max_kg": "4.7",
+    "max_kg": "5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Rote Neuseeländer",
+    "abbr": "RN",
+    "line": 5774,
+    "min_kg": "3.5",
+    "ideal_min_kg": "4",
+    "ideal_max_kg": "4.7",
+    "max_kg": "5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Gleichmässigkeit",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Englische Widder",
+    "abbr": "EW",
+    "line": 5868,
+    "min_kg": "3.8",
+    "ideal_min_kg": "4.1",
+    "ideal_max_kg": "4.8",
+    "max_kg": "5.2",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Angora",
+    "abbr": "A",
+    "line": 6107,
+    "min_kg": "3.8",
+    "ideal_min_kg": "4.1",
+    "ideal_max_kg": "4.8",
+    "max_kg": "5.2",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Qualität des Wollvlieses",
+        "points": 20
+      },
+      {
+        "label": "Typische Rassenmerkmale",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Weisse Neuseeländer",
+    "abbr": "WN",
+    "line": 6236,
+    "min_kg": "4.2",
+    "ideal_min_kg": "4.5",
+    "ideal_max_kg": "5.2",
+    "max_kg": "5.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe",
+        "points": 10
+      },
+      {
+        "label": "Gleichmässigkeit",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Champagne-Silber",
+    "abbr": "Ch-S",
+    "line": 6322,
+    "min_kg": "4.2",
+    "ideal_min_kg": "4.5",
+    "ideal_max_kg": "5.2",
+    "max_kg": "5.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Silberung und Glanz",
+        "points": 20
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Gleichmässigkeit",
+        "points": 10
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Bartkaninchen",
+    "abbr": "BK",
+    "line": 6412,
+    "min_kg": "4.2",
+    "ideal_min_kg": "4.5",
+    "ideal_max_kg": "5.2",
+    "max_kg": "5.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe, Unterfarbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Bart und Mähne",
+        "points": 15
+      },
+      {
+        "label": "Flankenbehaarung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "medium"
+  },
+  {
+    "name": "Französische Widder",
+    "abbr": "FW",
+    "line": 6565,
+    "min_kg": "5.5",
+    "ideal_min_kg": "6.3",
+    "ideal_max_kg": "8.0",
+    "max_kg": "8.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Farbenschlagmerkmal",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "large"
+  },
+  {
+    "name": "Schweizer Schecke",
+    "abbr": "SchSch",
+    "line": 6781,
+    "min_kg": "5.5",
+    "ideal_min_kg": "6.3",
+    "ideal_max_kg": "8.5",
+    "max_kg": "9.0",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Kopfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Rumpfzeichnung",
+        "points": 15
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "large"
+  },
+  {
+    "name": "Weisse Riesen",
+    "abbr": "WR",
+    "line": 6935,
+    "min_kg": "5.5",
+    "ideal_min_kg": "6.3",
+    "ideal_max_kg": "8.5",
+    "max_kg": "9.0",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell und Fellhaut",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Grannenhaare",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "large"
+  },
+  {
+    "name": "Belgische Riesen",
+    "abbr": "BR",
+    "line": 7037,
+    "min_kg": "6.0",
+    "ideal_min_kg": "7.0",
+    "ideal_max_kg": "9.0",
+    "max_kg": "9.5",
+    "positions": [
+      {
+        "label": "Kopf, Ohren, Hals",
+        "points": 10
+      },
+      {
+        "label": "Brust, Schultern, Vorderläufe und Haltung",
+        "points": 10
+      },
+      {
+        "label": "Rücken, Becken, Hinterläufe und Bauchlinie",
+        "points": 10
+      },
+      {
+        "label": "Fell, Fellhaut und Grannenhaare",
+        "points": 20
+      },
+      {
+        "label": "Farbe und Glanz",
+        "points": 10
+      },
+      {
+        "label": "Unterfarbe",
+        "points": 10
+      },
+      {
+        "label": "Typische Erscheinung",
+        "points": 20
+      },
+      {
+        "label": "Gesundheit und Pflege",
+        "points": 10
+      }
+    ],
+    "group": "large"
+  }
+]
