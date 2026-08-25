@@ -1,0 +1,13 @@
+name: Keep Render service awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # alle 10 Minuten
+  workflow_dispatch: {} # manuell auslösbar zum Testen, unter "Actions" im Repo
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: App-URL aufrufen
+        run: curl -sS -o /dev/null -w "Status: %{http_code}\n" "${{ vars.APP_URL }}"
