@@ -40,7 +40,9 @@ import type {
   YearlyWeightStat,
 } from "./types";
 
-export const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// Kein VITE_API_URL gesetzt (z.B. im Produktions-Docker-Build) -> relative
+// Pfade, da Frontend und Backend dort von derselben Adresse ausgeliefert werden.
+export const BASE_URL = import.meta.env.VITE_API_URL ?? "";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
