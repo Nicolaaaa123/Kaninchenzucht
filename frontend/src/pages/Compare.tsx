@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../api/client";
+import { AnimalCombobox } from "../components/AnimalCombobox";
 import { useAsync } from "../hooks/useAsync";
 import type { Animal, WeightEntry } from "../api/types";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
@@ -97,16 +98,14 @@ export function Compare() {
 
       <div className="card section">
         <div className="toolbar" style={{ marginBottom: 0 }}>
-          <select value={addValue} onChange={(e) => addAnimal(e.target.value)} style={{ maxWidth: 320 }}>
-            <option value="">Tier hinzufügen…</option>
-            {allAnimals.data
-              ?.filter((a) => !selectedIds.includes(a.id))
-              .map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.chip_number} {a.name ? `· ${a.name}` : ""}
-                </option>
-              ))}
-          </select>
+          <div style={{ maxWidth: 320, flex: 1 }}>
+            <AnimalCombobox
+              options={allAnimals.data?.filter((a) => !selectedIds.includes(a.id)) ?? []}
+              value={addValue}
+              onChange={addAnimal}
+              placeholder="Tier hinzufügen…"
+            />
+          </div>
         </div>
       </div>
 

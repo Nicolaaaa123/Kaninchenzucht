@@ -20,6 +20,7 @@ import { api, BASE_URL } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import type { EvaluationScore, FeedingPhase } from "../api/types";
 import { EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
+import { AnimalCombobox } from "../components/AnimalCombobox";
 import { PedigreeTree } from "../components/PedigreeTree";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
 import { buildWeightChartData, descendantsChartData, GROWTH_STATUS_LABELS, growthStatusClass } from "../utils/growth";
@@ -478,29 +479,23 @@ export function AnimalDetail() {
             </div>
             <div className="field">
               <label htmlFor="edit-mother">Mutter</label>
-              <select id="edit-mother" value={motherIdEdit} onChange={(e) => setMotherIdEdit(e.target.value)}>
-                <option value="">unbekannt</option>
-                {candidates.data
-                  ?.filter((c) => c.sex === "female" && c.id !== id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
-                    </option>
-                  ))}
-              </select>
+              <AnimalCombobox
+                id="edit-mother"
+                options={candidates.data?.filter((c) => c.sex === "female" && c.id !== id) ?? []}
+                value={motherIdEdit}
+                onChange={setMotherIdEdit}
+                placeholder="unbekannt"
+              />
             </div>
             <div className="field">
               <label htmlFor="edit-father">Vater</label>
-              <select id="edit-father" value={fatherIdEdit} onChange={(e) => setFatherIdEdit(e.target.value)}>
-                <option value="">unbekannt</option>
-                {candidates.data
-                  ?.filter((c) => c.sex === "male" && c.id !== id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
-                    </option>
-                  ))}
-              </select>
+              <AnimalCombobox
+                id="edit-father"
+                options={candidates.data?.filter((c) => c.sex === "male" && c.id !== id) ?? []}
+                value={fatherIdEdit}
+                onChange={setFatherIdEdit}
+                placeholder="unbekannt"
+              />
             </div>
             <div className="field" style={{ gridColumn: "1 / -1" }}>
               <label htmlFor="edit-notes">Notizen</label>
