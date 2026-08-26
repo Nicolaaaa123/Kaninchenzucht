@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { LitterOverview } from "../components/LitterOverview";
@@ -29,36 +29,56 @@ const CATEGORY_ORDER: BreedingCategory[] = ["breeding", "young", "external"];
 
 type SortKey = "chip" | "year" | "breed";
 
+interface StoredFilters {
+  search?: string;
+  status?: AnimalStatus | "";
+  sortKey?: SortKey;
+  breedIdFilter?: string;
+  colorFilter?: string;
+}
+
+const FILTERS_STORAGE_KEY = "kaninchenzucht.animals.filters";
+
+function loadStoredFilters(): StoredFilters {
+  try {
+    const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredFilters(patch: StoredFilters) {
+  try {
+    localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify({ ...loadStoredFilters(), ...patch }));
+  } catch {
+    // localStorage nicht verfügbar (z.B. privates Fenster) -- Filter gelten dann nur für diesen Besuch
+  }
+}
+
 export function Animals() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const litterCount = searchParams.get("wurf");
 
-  const search = searchParams.get("q") ?? "";
-  const status = (searchParams.get("status") ?? "active") as AnimalStatus | "";
-  const sortKey = (searchParams.get("sort") as SortKey) || "chip";
-  const breedIdFilter = searchParams.get("rasse") ?? "all";
-  const colorFilter = searchParams.get("farbe") ?? "all";
+  const initialFilters = useMemo(loadStoredFilters, []);
+  const [search, setSearchState] = useState(initialFilters.search ?? "");
+  const [status, setStatusState] = useState<AnimalStatus | "">(initialFilters.status ?? "active");
+  const [sortKey, setSortKeyState] = useState<SortKey>(initialFilters.sortKey ?? "chip");
+  const [breedIdFilter, setBreedIdFilterState] = useState(initialFilters.breedIdFilter ?? "all");
+  const [colorFilter, setColorFilterState] = useState(initialFilters.colorFilter ?? "all");
 
-  const updateParam = useCallback(
-    (key: string, value: string, defaultValue: string) => {
-      setSearchParams(
-        (prev) => {
-          const next = new URLSearchParams(prev);
-          if (value === defaultValue) next.delete(key);
-          else next.set(key, value);
-          return next;
-        },
-        { replace: true },
-      );
-    },
-    [setSearchParams],
-  );
-
-  const setSearch = (v: string) => updateParam("q", v, "");
-  const setStatus = (v: AnimalStatus | "") => updateParam("status", v, "active");
-  const setSortKey = (v: SortKey) => updateParam("sort", v, "chip");
-  const setBreedIdFilter = (v: string) => updateParam("rasse", v, "all");
-  const setColorFilter = (v: string) => updateParam("farbe", v, "all");
+  const setSearch = (v: string) => {
+    setSearchState(v);
+    saveStoredFilters({ search: v });
+  };
+  const setStatus = (v: AnimalStatus | "") => {
+    setStatusState(v);
+    saveStoredFilters({ status: v });
+  };
+  const setSortKey = (v: SortKey) => {
+    setSortKeyState(v);
+    saveStoredFilters({ sortKey: v });
+  };
 
   const [viewMode, setViewMode] = useState<"list" | "litters">(
     searchParams.get("view") === "litters" ? "litters" : "list",
@@ -88,8 +108,14 @@ export function Animals() {
   }, [data, breedIdFilter]);
 
   function handleBreedFilterChange(value: string) {
-    setBreedIdFilter(value);
-    setColorFilter("all");
+    setBreedIdFilterState(value);
+    setColorFilterState("all");
+    saveStoredFilters({ breedIdFilter: value, colorFilter: "all" });
+  }
+
+  function handleColorFilterChange(value: string) {
+    setColorFilterState(value);
+    saveStoredFilters({ colorFilter: value });
   }
 
   const filtered = useMemo(() => {
@@ -183,7 +209,7 @@ export function Animals() {
           </select>
           <select
             value={colorFilter}
-            onChange={(e) => setColorFilter(e.target.value)}
+            onChange={(e) => handleColorFilterChange(e.target.value)}
             disabled={colorOptions.length === 0}
             style={{ flex: 1 }}
           >
