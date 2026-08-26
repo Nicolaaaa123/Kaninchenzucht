@@ -282,6 +282,13 @@ class AnimalUpdate(BaseModel):
     father_id: uuid.UUID | None = None
 
 
+class ParentSummaryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    chip_number: str
+    name: str | None = None
+
+
 class AnimalOut(AnimalBase):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
@@ -291,6 +298,8 @@ class AnimalOut(AnimalBase):
     feed: FeedOut | None = None
     cage_box_label: str | None = None
     inbreeding_coefficient: float | None = None
+    mother: ParentSummaryOut | None = None
+    father: ParentSummaryOut | None = None
 
 
 class AnimalListItem(BaseModel):

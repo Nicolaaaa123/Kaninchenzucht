@@ -397,11 +397,29 @@ export function AnimalDetail() {
               </tr>
               <tr>
                 <th>Mutter</th>
-                <td>{a.mother_id ? <Link to={`/tiere/${a.mother_id}`}>Zum Tier</Link> : "unbekannt"}</td>
+                <td>
+                  {a.mother ? (
+                    <Link to={`/tiere/${a.mother.id}`}>
+                      {a.mother.chip_number}
+                      {a.mother.name ? ` · ${a.mother.name}` : ""}
+                    </Link>
+                  ) : (
+                    "unbekannt"
+                  )}
+                </td>
               </tr>
               <tr>
                 <th>Vater</th>
-                <td>{a.father_id ? <Link to={`/tiere/${a.father_id}`}>Zum Tier</Link> : "unbekannt"}</td>
+                <td>
+                  {a.father ? (
+                    <Link to={`/tiere/${a.father.id}`}>
+                      {a.father.chip_number}
+                      {a.father.name ? ` · ${a.father.name}` : ""}
+                    </Link>
+                  ) : (
+                    "unbekannt"
+                  )}
+                </td>
               </tr>
               {a.notes && (
                 <tr>

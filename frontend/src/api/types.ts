@@ -231,6 +231,14 @@ export interface Animal {
   feed: Feed | null;
   cage_box_label: string | null;
   inbreeding_coefficient: number | null;
+  mother: ParentSummary | null;
+  father: ParentSummary | null;
+}
+
+export interface ParentSummary {
+  id: string;
+  chip_number: string;
+  name: string | null;
 }
 
 export interface LitterCreate {
