@@ -35,7 +35,8 @@ export function Animals() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<AnimalStatus | "">("active");
   const [sortKey, setSortKey] = useState<SortKey>("chip");
-  const [breedFilter, setBreedFilter] = useState<string>("all");
+  const [breedIdFilter, setBreedIdFilter] = useState<string>("all");
+  const [colorFilter, setColorFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "litters">(
     searchParams.get("view") === "litters" ? "litters" : "list",
   );
@@ -45,24 +46,37 @@ export function Animals() {
   );
 
   const breedOptions = useMemo(() => {
-    const map = new Map<string, { key: string; breedId: string; breedName: string; colorVariant: string | null }>();
+    const map = new Map<string, { breedId: string; breedName: string }>();
     for (const a of data ?? []) {
       if (!a.breed) continue;
-      const key = `${a.breed.id}|${a.color_variant ?? ""}`;
-      if (!map.has(key)) {
-        map.set(key, { key, breedId: a.breed.id, breedName: a.breed.name, colorVariant: a.color_variant });
-      }
+      if (!map.has(a.breed.id)) map.set(a.breed.id, { breedId: a.breed.id, breedName: a.breed.name });
     }
-    return Array.from(map.values()).sort(
-      (a, b) => a.breedName.localeCompare(b.breedName) || (a.colorVariant ?? "").localeCompare(b.colorVariant ?? ""),
-    );
+    return Array.from(map.values()).sort((a, b) => a.breedName.localeCompare(b.breedName));
   }, [data]);
+
+  const colorOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const a of data ?? []) {
+      if (!a.color_variant) continue;
+      if (breedIdFilter !== "all" && a.breed?.id !== breedIdFilter) continue;
+      set.add(a.color_variant);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [data, breedIdFilter]);
+
+  function handleBreedFilterChange(value: string) {
+    setBreedIdFilter(value);
+    setColorFilter("all");
+  }
 
   const filtered = useMemo(() => {
     if (!data) return data;
-    if (breedFilter === "all") return data;
-    return data.filter((a) => a.breed && `${a.breed.id}|${a.color_variant ?? ""}` === breedFilter);
-  }, [data, breedFilter]);
+    return data.filter(
+      (a) =>
+        (breedIdFilter === "all" || a.breed?.id === breedIdFilter) &&
+        (colorFilter === "all" || a.color_variant === colorFilter),
+    );
+  }, [data, breedIdFilter, colorFilter]);
 
   const sorted = useMemo(() => {
     if (!filtered) return filtered;
@@ -78,11 +92,11 @@ export function Animals() {
   }, [filtered, sortKey]);
 
   const groupedByCategory = useMemo(() => {
-    if (!sorted || breedFilter === "all") return null;
+    if (!sorted || (breedIdFilter === "all" && colorFilter === "all")) return null;
     const buckets: Record<BreedingCategory, AnimalListItem[]> = { breeding: [], young: [], external: [] };
     for (const a of sorted) buckets[a.category].push(a);
     return buckets;
-  }, [sorted, breedFilter]);
+  }, [sorted, breedIdFilter, colorFilter]);
 
   const youngLitters = useMemo(() => {
     if (!groupedByCategory) return null;
@@ -131,20 +145,32 @@ export function Animals() {
       )}
 
       {breedOptions.length > 0 && (
-        <div className="page-tabs">
-          <button className={`page-tab ${breedFilter === "all" ? "active" : ""}`} onClick={() => setBreedFilter("all")}>
-            Alle Rassen
-          </button>
-          {breedOptions.map((opt) => (
-            <button
-              key={opt.key}
-              className={`page-tab ${breedFilter === opt.key ? "active" : ""}`}
-              onClick={() => setBreedFilter(opt.key)}
-            >
-              {opt.breedName}
-              {opt.colorVariant ? ` · ${opt.colorVariant}` : ""}
-            </button>
-          ))}
+        <div className="toolbar">
+          <select
+            value={breedIdFilter}
+            onChange={(e) => handleBreedFilterChange(e.target.value)}
+            style={{ flex: 1 }}
+          >
+            <option value="all">Alle Rassen</option>
+            {breedOptions.map((opt) => (
+              <option key={opt.breedId} value={opt.breedId}>
+                {opt.breedName}
+              </option>
+            ))}
+          </select>
+          <select
+            value={colorFilter}
+            onChange={(e) => setColorFilter(e.target.value)}
+            disabled={colorOptions.length === 0}
+            style={{ flex: 1 }}
+          >
+            <option value="all">Alle Farbenschläge</option>
+            {colorOptions.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
