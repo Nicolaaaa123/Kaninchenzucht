@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { LitterOverview } from "../components/LitterOverview";
@@ -30,13 +30,36 @@ const CATEGORY_ORDER: BreedingCategory[] = ["breeding", "young", "external"];
 type SortKey = "chip" | "year" | "breed";
 
 export function Animals() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const litterCount = searchParams.get("wurf");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<AnimalStatus | "">("active");
-  const [sortKey, setSortKey] = useState<SortKey>("chip");
-  const [breedIdFilter, setBreedIdFilter] = useState<string>("all");
-  const [colorFilter, setColorFilter] = useState<string>("all");
+
+  const search = searchParams.get("q") ?? "";
+  const status = (searchParams.get("status") ?? "active") as AnimalStatus | "";
+  const sortKey = (searchParams.get("sort") as SortKey) || "chip";
+  const breedIdFilter = searchParams.get("rasse") ?? "all";
+  const colorFilter = searchParams.get("farbe") ?? "all";
+
+  const updateParam = useCallback(
+    (key: string, value: string, defaultValue: string) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value === defaultValue) next.delete(key);
+          else next.set(key, value);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
+  );
+
+  const setSearch = (v: string) => updateParam("q", v, "");
+  const setStatus = (v: AnimalStatus | "") => updateParam("status", v, "active");
+  const setSortKey = (v: SortKey) => updateParam("sort", v, "chip");
+  const setBreedIdFilter = (v: string) => updateParam("rasse", v, "all");
+  const setColorFilter = (v: string) => updateParam("farbe", v, "all");
+
   const [viewMode, setViewMode] = useState<"list" | "litters">(
     searchParams.get("view") === "litters" ? "litters" : "list",
   );
