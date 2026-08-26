@@ -10,4 +10,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: App-URL aufrufen
-        run: curl -sS -o /dev/null -w "Status: %{http_code}\n" "${{ vars.APP_URL }}"
+        run: |
+          curl -sS -o /dev/null -w "Status: %{http_code}\n" "${{ vars.APP_URL }}"
