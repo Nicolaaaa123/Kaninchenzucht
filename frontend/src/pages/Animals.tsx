@@ -33,7 +33,7 @@ export function Animals() {
   const [searchParams] = useSearchParams();
   const litterCount = searchParams.get("wurf");
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<AnimalStatus | "">("");
+  const [status, setStatus] = useState<AnimalStatus | "">("active");
   const [sortKey, setSortKey] = useState<SortKey>("chip");
   const [breedFilter, setBreedFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "litters">(
