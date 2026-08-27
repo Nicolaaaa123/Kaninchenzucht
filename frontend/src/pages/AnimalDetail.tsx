@@ -95,8 +95,11 @@ export function AnimalDetail() {
     [animal.data?.breed_id, animal.data?.sex],
   );
   const breedActualCurve = useAsync(
-    () => (animal.data?.breed_id ? api.breeds.growthCurveActual(animal.data.breed_id) : Promise.resolve(null)),
-    [animal.data?.breed_id],
+    () =>
+      animal.data?.breed_id
+        ? api.breeds.growthCurveActual(animal.data.breed_id, animal.data.color_variant)
+        : Promise.resolve(null),
+    [animal.data?.breed_id, animal.data?.color_variant],
   );
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
@@ -792,7 +795,7 @@ export function AnimalDetail() {
                   <Line
                     type="monotone"
                     dataKey="breedActual"
-                    name={`Ø tatsächlich (${breedActualCurve.data.animal_count} Tiere)`}
+                    name={`Ø tatsächlich${a.color_variant ? ` ${a.breed?.name ?? ""} ${a.color_variant}` : ""} (${breedActualCurve.data.animal_count} Tiere)`}
                     stroke="#0d9488"
                     strokeWidth={1.5}
                     dot={false}

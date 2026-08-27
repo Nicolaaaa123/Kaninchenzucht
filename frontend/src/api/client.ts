@@ -95,7 +95,10 @@ export const api = {
       }),
     growthCurve: (id: string, sex?: Sex) =>
       request<GrowthCurve>(`/api/breeds/${id}/growth-curve${sex ? `?sex=${sex}` : ""}`),
-    growthCurveActual: (id: string) => request<BreedGrowthCurveActual>(`/api/breeds/${id}/growth-curve-actual`),
+    growthCurveActual: (id: string, colorVariant?: string | null) =>
+      request<BreedGrowthCurveActual>(
+        `/api/breeds/${id}/growth-curve-actual${colorVariant ? `?color_variant=${encodeURIComponent(colorVariant)}` : ""}`,
+      ),
     replaceGrowthCurve: (id: string, points: BreedGrowthPoint[]) =>
       request<GrowthCurve>(`/api/breeds/${id}/growth-curve`, { method: "PUT", body: JSON.stringify(points) }),
   },
