@@ -3,8 +3,12 @@ backend/venv/
 backend/__pycache__/
 backend/**/__pycache__/
 backend/.env
-backend/.env.production
+backend/.env.production*
 *.pyc
+
+# Echte Zuchtdaten-Exporte -- nie ins Repo
+*.xlsx
+*.xls
 
 # Node
 frontend/node_modules/
