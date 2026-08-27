@@ -2,7 +2,7 @@ name: Keep Render service awake
 
 on:
   schedule:
-    - cron: "*/10 * * * *" # alle 10 Minuten
+    - cron: "*/5 * * * *" # alle 5 Minuten
   workflow_dispatch: {} # manuell auslösbar zum Testen, unter "Actions" im Repo
 
 jobs:
