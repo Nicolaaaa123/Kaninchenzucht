@@ -372,7 +372,9 @@ def main() -> None:
             by_name.setdefault(row["name"], []).append(animal)
 
         if row["gewicht_gramm"]:
-            measured_on = animal.birth_date or parse_datetime(row["eingegeben_am"]).date()
+            # Das Gewicht wurde beim Eintragen des Datensatzes erfasst, nicht bei
+            # der Geburt -- eingegeben_am ist oft Monate/Jahre nach birth_date.
+            measured_on = parse_datetime(row["eingegeben_am"]).date()
             weight_entries.append(
                 WeightEntry(
                     id=uuid.uuid4(),
