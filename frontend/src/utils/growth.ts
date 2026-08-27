@@ -5,7 +5,7 @@ export interface WeightChartRow {
   grams?: number;
   predicted?: number;
   ownTrend?: number;
-  breedActual?: number;
+  siblingsActual?: number;
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -19,7 +19,7 @@ export function buildWeightChartData(
   birthDate: string | null,
   curve: GrowthCurvePoint[] | null,
   ownTrend?: TrendPoint[] | null,
-  breedActualCurve?: DescendantGrowthPoint[] | null,
+  siblingsCurve?: DescendantGrowthPoint[] | null,
 ): WeightChartRow[] {
   const rows = new Map<string, WeightChartRow>();
   for (const w of entries) {
@@ -52,14 +52,14 @@ export function buildWeightChartData(
       }
     }
   }
-  if (birthDate && breedActualCurve) {
-    for (const p of breedActualCurve) {
+  if (birthDate && siblingsCurve) {
+    for (const p of siblingsCurve) {
       const date = addDays(birthDate, p.age_weeks * 7);
       const existing = rows.get(date);
       if (existing) {
-        existing.breedActual = p.mean_grams;
+        existing.siblingsActual = p.mean_grams;
       } else {
-        rows.set(date, { date, breedActual: p.mean_grams });
+        rows.set(date, { date, siblingsActual: p.mean_grams });
       }
     }
   }

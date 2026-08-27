@@ -603,6 +603,38 @@ def get_descendants_growth(
     )
 
 
+@router.get("/{animal_id}/siblings-growth-curve", response_model=schemas.SiblingsGrowthCurveOut)
+def get_siblings_growth_curve(
+    animal_id: uuid.UUID, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
+):
+    """Altersbasierte Durchschnittsgewichtskurve der vollen Geschwister
+    (gleiche Mutter + Vater) dieses Tiers."""
+    animal = _get_owned(db, animal_id, current_user.tenant_id)
+    siblings: list[models.Animal] = []
+    if animal.mother_id and animal.father_id:
+        siblings = (
+            db.execute(
+                select(models.Animal)
+                .options(joinedload(models.Animal.weight_entries))
+                .where(
+                    models.Animal.tenant_id == current_user.tenant_id,
+                    models.Animal.mother_id == animal.mother_id,
+                    models.Animal.father_id == animal.father_id,
+                    models.Animal.id != animal.id,
+                )
+            )
+            .unique()
+            .scalars()
+            .all()
+        )
+    points = descendants_growth_curve(siblings)
+    return schemas.SiblingsGrowthCurveOut(
+        animal_id=animal_id,
+        sibling_count=len(siblings),
+        points=[schemas.DescendantGrowthPointOut(**vars(p)) for p in points],
+    )
+
+
 @router.get("/{animal_id}/offspring-scores", response_model=schemas.OffspringScoresOut)
 def get_offspring_scores(
     animal_id: uuid.UUID, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)

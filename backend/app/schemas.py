@@ -496,6 +496,12 @@ class BreedGrowthCurveActualOut(BaseModel):
     points: list[DescendantGrowthPointOut]
 
 
+class SiblingsGrowthCurveOut(BaseModel):
+    animal_id: uuid.UUID
+    sibling_count: int
+    points: list[DescendantGrowthPointOut]
+
+
 class YearlyWeightStatOut(BaseModel):
     year: int
     breed_name: str

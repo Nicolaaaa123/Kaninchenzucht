@@ -91,6 +91,12 @@ export interface BreedGrowthCurveActual {
   points: DescendantGrowthPoint[];
 }
 
+export interface SiblingsGrowthCurve {
+  animal_id: string;
+  sibling_count: number;
+  points: DescendantGrowthPoint[];
+}
+
 export interface YearlyWeightStat {
   year: number;
   breed_name: string;

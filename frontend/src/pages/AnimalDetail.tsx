@@ -94,13 +94,8 @@ export function AnimalDetail() {
       animal.data?.breed_id ? api.breeds.growthCurve(animal.data.breed_id, animal.data.sex) : Promise.resolve(null),
     [animal.data?.breed_id, animal.data?.sex],
   );
-  const breedActualCurve = useAsync(
-    () =>
-      animal.data?.breed_id
-        ? api.breeds.growthCurveActual(animal.data.breed_id, animal.data.color_variant)
-        : Promise.resolve(null),
-    [animal.data?.breed_id, animal.data?.color_variant],
-  );
+  const siblingsGrowthCurve = useAsync(() => api.animals.siblingsGrowthCurve(id), [id]);
+  const [showSiblingsCurve, setShowSiblingsCurve] = useState(true);
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
   const strengthsWeaknesses = useAsync(
@@ -341,7 +336,7 @@ export function AnimalDetail() {
     a.birth_date,
     growthCurve.data?.curve ?? null,
     growthPlan.data?.own_trend ?? null,
-    breedActualCurve.data && breedActualCurve.data.animal_count >= 2 ? breedActualCurve.data.points : null,
+    siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 ? siblingsGrowthCurve.data.points : null,
   );
 
   return (
@@ -752,6 +747,17 @@ export function AnimalDetail() {
 
       <div className="card section">
         <h2>Gewichtshistorie & Peak-Fenster</h2>
+        {siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 && (
+          <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontWeight: 400 }}>
+            <input
+              type="checkbox"
+              checked={showSiblingsCurve}
+              onChange={(e) => setShowSiblingsCurve(e.target.checked)}
+              style={{ width: "auto" }}
+            />
+            Ø Geschwister anzeigen ({siblingsGrowthCurve.data.sibling_count})
+          </label>
+        )}
         {chartData.length > 0 && (
           <div style={{ height: 220, marginBottom: 16 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -791,11 +797,11 @@ export function AnimalDetail() {
                     connectNulls
                   />
                 )}
-                {breedActualCurve.data && breedActualCurve.data.animal_count >= 2 && (
+                {showSiblingsCurve && siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 && (
                   <Line
                     type="monotone"
-                    dataKey="breedActual"
-                    name={`Ø tatsächlich${a.color_variant ? ` ${a.breed?.name ?? ""} ${a.color_variant}` : ""} (${breedActualCurve.data.animal_count} Tiere)`}
+                    dataKey="siblingsActual"
+                    name={`Ø Geschwister (${siblingsGrowthCurve.data.sibling_count})`}
                     stroke="#0d9488"
                     strokeWidth={1.5}
                     dot={false}
