@@ -804,7 +804,7 @@ export function AnimalDetail() {
                     name={`Ø Geschwister (${siblingsGrowthCurve.data.sibling_count})`}
                     stroke="#0d9488"
                     strokeWidth={1.5}
-                    dot={false}
+                    dot={{ r: 3 }}
                     connectNulls
                   />
                 )}
