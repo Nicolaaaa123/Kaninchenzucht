@@ -9,6 +9,7 @@ backend/.env.production*
 # Echte Zuchtdaten-Exporte -- nie ins Repo
 *.xlsx
 *.xls
+scan-import/
 
 # Node
 frontend/node_modules/
