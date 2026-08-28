@@ -52,7 +52,16 @@ export function buildWeightChartData(
       }
     }
   }
-  if (birthDate && siblingsCurve) {
+  if (birthDate && siblingsCurve && siblingsCurve.length > 0) {
+    // Wie bei der eigenen Gewichtslinie: Start bei Geburt (0 g) ergänzen, damit
+    // auch ein einzelner Alters-Punkt als echte Linie gezeichnet wird statt als
+    // isolierter Punkt.
+    const existingBirthRow = rows.get(birthDate);
+    if (existingBirthRow) {
+      existingBirthRow.siblingsActual = 0;
+    } else {
+      rows.set(birthDate, { date: birthDate, siblingsActual: 0 });
+    }
     for (const p of siblingsCurve) {
       const date = addDays(birthDate, p.age_weeks * 7);
       const existing = rows.get(date);
