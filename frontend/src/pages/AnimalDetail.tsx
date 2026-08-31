@@ -18,7 +18,7 @@ import {
 } from "recharts";
 import { api, BASE_URL } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
-import type { EvaluationScore, FeedingPhase } from "../api/types";
+import type { Evaluation, EvaluationScore, FeedingPhase } from "../api/types";
 import { EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
 import { AnimalCombobox } from "../components/AnimalCombobox";
 import { PedigreeTree } from "../components/PedigreeTree";
@@ -147,6 +147,15 @@ export function AnimalDetail() {
   const [evalWeight, setEvalWeight] = useState("");
   const [evalError, setEvalError] = useState<string | null>(null);
   const [selectedEvalId, setSelectedEvalId] = useState<string>("");
+  const [editingEvalId, setEditingEvalId] = useState<string | null>(null);
+  const [editingEvalExtra, setEditingEvalExtra] = useState<{
+    exhibitor_number: string | null;
+    exhibitor_name: string | null;
+    exhibitor_address: string | null;
+    notes: string | null;
+    source: string;
+    photo_path: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (animal.data) {
@@ -304,20 +313,64 @@ export function AnimalDetail() {
   async function handleAddEvaluation(e: React.FormEvent) {
     e.preventDefault();
     setEvalError(null);
+    const data = {
+      evaluated_on: evalDate,
+      show_name: showName.trim() || null,
+      total_score: scoreTotal,
+      weight_grams: evalWeight ? Number(evalWeight) : null,
+      scores,
+      ...editingEvalExtra,
+    };
     try {
-      await api.evaluations.create(id, {
-        evaluated_on: evalDate,
-        show_name: showName.trim() || null,
-        total_score: scoreTotal,
-        weight_grams: evalWeight ? Number(evalWeight) : null,
-        scores,
-      });
+      if (editingEvalId) {
+        await api.evaluations.update(id, editingEvalId, data);
+      } else {
+        await api.evaluations.create(id, data);
+      }
       setShowEvalForm(false);
+      setEditingEvalId(null);
+      setEditingEvalExtra(null);
       setShowName("");
       setEvalWeight("");
       evaluations.reload();
     } catch (err) {
       setEvalError((err as Error).message);
+    }
+  }
+
+  function handleStartEditEvaluation(ev: Evaluation) {
+    setEditingEvalId(ev.id);
+    setEditingEvalExtra({
+      exhibitor_number: ev.exhibitor_number,
+      exhibitor_name: ev.exhibitor_name,
+      exhibitor_address: ev.exhibitor_address,
+      notes: ev.notes,
+      source: ev.source,
+      photo_path: ev.photo_path,
+    });
+    setEvalDate(ev.evaluated_on);
+    setShowName(ev.show_name ?? "");
+    setEvalWeight(ev.weight_grams ? String(ev.weight_grams) : "");
+    setScores(ev.scores.map((s) => ({ position_number: s.position_number, category_label: s.category_label, max_points: s.max_points, points: s.points })));
+    setEvalError(null);
+    setShowEvalForm(true);
+  }
+
+  function handleCancelEvaluationForm() {
+    setShowEvalForm(false);
+    setEditingEvalId(null);
+    setEditingEvalExtra(null);
+    setShowName("");
+    setEvalWeight("");
+    if (a.breed) {
+      setScores(
+        a.breed.scoring_positions.map((p) => ({
+          position_number: p.position_number,
+          category_label: p.label,
+          max_points: p.max_points,
+          points: p.max_points,
+        })),
+      );
     }
   }
 
@@ -932,13 +985,21 @@ export function AnimalDetail() {
         {!a.breed_id && <p className="hint">Für die standardkonforme Bewertungsskala zuerst eine Rasse zuordnen.</p>}
 
         {a.breed_id && !showEvalForm && (
-          <button className="btn" onClick={() => setShowEvalForm(true)}>
+          <button
+            className="btn"
+            onClick={() => {
+              setEditingEvalId(null);
+              setEditingEvalExtra(null);
+              setShowEvalForm(true);
+            }}
+          >
             + Bewertung erfassen
           </button>
         )}
 
         {showEvalForm && (
           <form className="card" onSubmit={handleAddEvaluation} style={{ marginBottom: 16 }}>
+            <h3 style={{ marginTop: 0 }}>{editingEvalId ? "Bewertung bearbeiten" : "Neue Bewertung"}</h3>
             {evalError && <div className="error-banner">{evalError}</div>}
             <div className="form-grid">
               <div className="field">
@@ -992,7 +1053,7 @@ export function AnimalDetail() {
               <button className="btn" type="submit">
                 Speichern
               </button>
-              <button className="btn secondary" type="button" onClick={() => setShowEvalForm(false)}>
+              <button className="btn secondary" type="button" onClick={handleCancelEvaluationForm}>
                 Abbrechen
               </button>
             </div>
@@ -1048,6 +1109,9 @@ export function AnimalDetail() {
                     </a>
                   )}
                   <div className="toolbar" style={{ marginTop: 12, marginBottom: 0 }}>
+                    <button className="btn secondary small" onClick={() => handleStartEditEvaluation(ev)}>
+                      Bearbeiten
+                    </button>
                     <button className="btn danger small" onClick={() => handleDeleteEvaluation(ev.id)}>
                       Diese Karte löschen
                     </button>

@@ -240,6 +240,11 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    update: (animalId: string, evaluationId: string, data: Record<string, unknown>) =>
+      request<Evaluation>(`/api/animals/${animalId}/evaluations/${evaluationId}`, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }),
     remove: (animalId: string, evaluationId: string) =>
       request<void>(`/api/animals/${animalId}/evaluations/${evaluationId}`, { method: "DELETE" }),
   },
