@@ -105,8 +105,8 @@ export function AnimalDetail() {
     if (values.length === 0) return [0, 100];
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = Math.max((max - min) * 0.2, 2);
-    return [Math.max(0, Math.floor(min - padding)), Math.min(100, Math.ceil(max + padding))];
+    const padding = Math.max((max - min) * 0.08, 0.5);
+    return [Math.max(0, min - padding), Math.min(100, max + padding)];
   }, [offspringScores.data]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),

@@ -50,8 +50,8 @@ export function YearlyStats() {
     const values = chartData.map((d) => d.points);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = Math.max((max - min) * 0.2, max * 0.03, 1);
-    return [Math.max(0, Math.floor(min - padding)), Math.ceil(max + padding)];
+    const padding = Math.max((max - min) * 0.08, 0.3);
+    return [Math.max(0, min - padding), max + padding];
   }, [chartData]);
 
   const evaluationsByYear = useMemo(() => {
