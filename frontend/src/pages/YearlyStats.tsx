@@ -23,17 +23,31 @@ export function YearlyStats() {
   const chartData = useMemo(() => {
     if (!evaluations.data) return [];
     const rows = position === ALL_POSITIONS ? evaluations.data : evaluations.data.filter((r) => r.category_label === position);
-    const byYear = new Map<number, { points: number; maxPoints: number }>();
+
+    // Erst pro (Jahr, Rasse) die Positionen aufsummieren -- danach, falls in
+    // einem Jahr mehrere Rassen vorkommen (z.B. "Alle Rassen" gewaehlt),
+    // deren Jahrestotale MITTELN statt zu addieren. Sonst wuerde ein Jahr mit
+    // zwei Rassen faelschlich die doppelte Punktzahl zeigen.
+    const byYearBreed = new Map<string, { points: number; maxPoints: number }>();
     for (const r of rows) {
-      const entry = byYear.get(r.year) ?? { points: 0, maxPoints: 0 };
+      const key = `${r.year}|${r.breed_name}`;
+      const entry = byYearBreed.get(key) ?? { points: 0, maxPoints: 0 };
       entry.points += r.avg_points;
       entry.maxPoints += r.max_points;
-      byYear.set(r.year, entry);
+      byYearBreed.set(key, entry);
+    }
+    const byYear = new Map<number, { pointsList: number[]; maxPoints: number }>();
+    for (const [key, { points, maxPoints }] of byYearBreed) {
+      const year = Number(key.split("|")[0]);
+      const entry = byYear.get(year) ?? { pointsList: [], maxPoints };
+      entry.pointsList.push(points);
+      entry.maxPoints = maxPoints;
+      byYear.set(year, entry);
     }
     return Array.from(byYear.entries())
-      .map(([year, { points, maxPoints }]) => ({
+      .map(([year, { pointsList, maxPoints }]) => ({
         year,
-        points: Math.round(points * 10) / 10,
+        points: Math.round((pointsList.reduce((a, b) => a + b, 0) / pointsList.length) * 10) / 10,
         maxPoints,
       }))
       .sort((a, b) => a.year - b.year);
