@@ -24,6 +24,7 @@ import { AnimalCombobox } from "../components/AnimalCombobox";
 import { PedigreeTree } from "../components/PedigreeTree";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
 import { buildWeightChartData, descendantsChartData, GROWTH_STATUS_LABELS, growthStatusClass } from "../utils/growth";
+import { niceAxisBounds } from "../utils/chartAxis";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Aktiv",
@@ -98,15 +99,15 @@ export function AnimalDetail() {
   const [showSiblingsCurve, setShowSiblingsCurve] = useState(true);
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
-  const offspringRadarDomain = useMemo<[number, number]>(() => {
+  const { domain: offspringRadarDomain, ticks: offspringRadarTicks } = useMemo(() => {
     const values = (offspringScores.data?.categories.map((c) => c.average_pct) ?? []).filter(
       (v): v is number => v != null,
     );
-    if (values.length === 0) return [0, 100];
+    if (values.length === 0) return niceAxisBounds(0, 100);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = Math.max((max - min) * 0.08, 0.5);
-    return [Math.max(0, min - padding), Math.min(100, max + padding)];
+    const padding = Math.max((max - min) * 0.1, 0.5);
+    return niceAxisBounds(Math.max(0, min - padding), Math.min(100, max + padding));
   }, [offspringScores.data]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),
@@ -1150,7 +1151,7 @@ export function AnimalDetail() {
                 <RadarChart data={offspringScores.data.categories}>
                   <PolarGrid stroke="var(--color-border)" />
                   <PolarAngleAxis dataKey="category_label" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis domain={offspringRadarDomain} tick={{ fontSize: 9 }} />
+                  <PolarRadiusAxis domain={offspringRadarDomain} ticks={offspringRadarTicks} tick={{ fontSize: 9 }} />
                   <Radar
                     name="Ø Prozent vom Höchstwert"
                     dataKey="average_pct"

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
+import { niceAxisBounds } from "../utils/chartAxis";
 
 const ALL_POSITIONS = "__all__";
 
@@ -44,14 +45,15 @@ export function YearlyStats() {
   }, [chartData]);
 
   // Statt immer bei 0 zu starten -- sonst wirken Unterschiede zwischen z.B.
-  // 92 und 96 Punkten auf einer 0-100-Skala kaum sichtbar.
-  const yDomain = useMemo<[number, number]>(() => {
-    if (chartData.length === 0) return [0, 100];
+  // 92 und 96 Punkten auf einer 0-100-Skala kaum sichtbar. Runde, saubere
+  // Achsenwerte statt rechts eigener (teils fehlerhafter) Tick-Berechnung.
+  const { domain: yDomain, ticks: yTicks } = useMemo(() => {
+    if (chartData.length === 0) return niceAxisBounds(0, 100);
     const values = chartData.map((d) => d.points);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = Math.max((max - min) * 0.08, 0.3);
-    return [Math.max(0, min - padding), max + padding];
+    const padding = Math.max((max - min) * 0.1, 0.3);
+    return niceAxisBounds(Math.max(0, min - padding), max + padding);
   }, [chartData]);
 
   const evaluationsByYear = useMemo(() => {
@@ -103,7 +105,7 @@ export function YearlyStats() {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                <YAxis domain={yDomain} tick={{ fontSize: 12 }} width={40} />
+                <YAxis domain={yDomain} ticks={yTicks} tick={{ fontSize: 12 }} width={40} />
                 <Tooltip
                   formatter={(value: unknown) => [
                     chartMax ? `${String(value)} / ${chartMax}` : String(value),
