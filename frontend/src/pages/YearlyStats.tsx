@@ -43,6 +43,17 @@ export function YearlyStats() {
     return max > 0 ? max : undefined;
   }, [chartData]);
 
+  // Statt immer bei 0 zu starten -- sonst wirken Unterschiede zwischen z.B.
+  // 92 und 96 Punkten auf einer 0-100-Skala kaum sichtbar.
+  const yDomain = useMemo<[number, number]>(() => {
+    if (chartData.length === 0) return [0, 100];
+    const values = chartData.map((d) => d.points);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = Math.max((max - min) * 0.2, max * 0.03, 1);
+    return [Math.max(0, Math.floor(min - padding)), Math.ceil(max + padding)];
+  }, [chartData]);
+
   const evaluationsByYear = useMemo(() => {
     const map = new Map<number, typeof evaluations.data>();
     for (const row of evaluations.data ?? []) {
@@ -92,7 +103,7 @@ export function YearlyStats() {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, chartMax ?? "auto"]} tick={{ fontSize: 12 }} width={40} />
+                <YAxis domain={yDomain} tick={{ fontSize: 12 }} width={40} />
                 <Tooltip
                   formatter={(value: unknown) => [
                     chartMax ? `${String(value)} / ${chartMax}` : String(value),

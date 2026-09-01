@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Area,
@@ -98,6 +98,16 @@ export function AnimalDetail() {
   const [showSiblingsCurve, setShowSiblingsCurve] = useState(true);
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
+  const offspringRadarDomain = useMemo<[number, number]>(() => {
+    const values = (offspringScores.data?.categories.map((c) => c.average_pct) ?? []).filter(
+      (v): v is number => v != null,
+    );
+    if (values.length === 0) return [0, 100];
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = Math.max((max - min) * 0.2, 2);
+    return [Math.max(0, Math.floor(min - padding)), Math.min(100, Math.ceil(max + padding))];
+  }, [offspringScores.data]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),
     [id, evaluations.data?.length],
@@ -1140,7 +1150,7 @@ export function AnimalDetail() {
                 <RadarChart data={offspringScores.data.categories}>
                   <PolarGrid stroke="var(--color-border)" />
                   <PolarAngleAxis dataKey="category_label" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
+                  <PolarRadiusAxis domain={offspringRadarDomain} tick={{ fontSize: 9 }} />
                   <Radar
                     name="Ø Prozent vom Höchstwert"
                     dataKey="average_pct"
