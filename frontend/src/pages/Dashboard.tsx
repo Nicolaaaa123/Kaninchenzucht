@@ -82,7 +82,7 @@ export function Dashboard() {
       <div className="stat-grid">
         <div className="stat-card">
           <div className="value">{data.total_animals}</div>
-          <div className="label">Tiere gesamt</div>
+          <div className="label">Aktive Tiere</div>
         </div>
         <div className="stat-card">
           <div className="value">{data.total_boxes}</div>
@@ -93,22 +93,6 @@ export function Dashboard() {
           <div className="label">Freie Kapazität</div>
         </div>
       </div>
-
-      {data.attention_items.length > 0 && (
-        <div className="section">
-          <h2>⚠️ Braucht Aufmerksamkeit</h2>
-          <div className="list">
-            {data.attention_items.map((item) => (
-              <Link className="attention-item" to={`/tiere/${item.animal_id}`} key={item.animal_id}>
-                <span>
-                  <strong>{item.chip_number}</strong> {item.name ? `· ${item.name}` : ""}
-                </span>
-                <span className="reason">{item.reason}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="section">
         <h2>Zuchtbestand</h2>

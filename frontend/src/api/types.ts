@@ -419,13 +419,6 @@ export interface MatingSuggestion {
   reasons: string[];
 }
 
-export interface AttentionItem {
-  animal_id: string;
-  chip_number: string;
-  name: string | null;
-  reason: string;
-}
-
 export interface User {
   id: string;
   username: string;
@@ -479,5 +472,4 @@ export interface DashboardData {
   free_box_capacity: number;
   recent_weight_entries: WeightEntry[];
   recent_evaluations: Evaluation[];
-  attention_items: AttentionItem[];
 }

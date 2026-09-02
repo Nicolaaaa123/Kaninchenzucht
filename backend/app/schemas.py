@@ -672,13 +672,6 @@ class BreedCount(BaseModel):
     count: int
 
 
-class AttentionItemOut(BaseModel):
-    animal_id: uuid.UUID
-    chip_number: str
-    name: str | None
-    reason: str
-
-
 class DashboardOut(BaseModel):
     total_animals: int
     animals_by_status: dict[str, int]
@@ -688,4 +681,3 @@ class DashboardOut(BaseModel):
     free_box_capacity: int
     recent_weight_entries: list[WeightEntryOut]
     recent_evaluations: list[EvaluationOut]
-    attention_items: list[AttentionItemOut]
