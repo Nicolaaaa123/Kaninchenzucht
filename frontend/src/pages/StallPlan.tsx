@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import type { Stall } from "../api/types";
+import { animalLabel } from "../utils/animalLabel";
 
 export function StallPlan() {
   const pages = useAsync(() => api.stallPages.list(), []);
@@ -265,7 +266,7 @@ export function StallPlan() {
                         occupants.map((occupant) => (
                           <div className="occupant-row" key={occupant.id}>
                             <Link to={`/tiere/${occupant.id}`} className="occupant">
-                              {occupant.chip_number} {occupant.name ? `· ${occupant.name}` : ""}
+                              {animalLabel(occupant)}
                             </Link>
                             <div className="occupant-meta">{occupant.breed?.name ?? ""}</div>
                             {occupant.daily_feed_grams && (
@@ -298,7 +299,7 @@ export function StallPlan() {
                           .filter((a) => !occupants.some((o) => o.id === a.id))
                           .map((a) => (
                             <option key={a.id} value={a.id}>
-                              {a.chip_number} {a.name ? `· ${a.name}` : ""}
+                              {animalLabel(a)}
                             </option>
                           ))}
                       </select>

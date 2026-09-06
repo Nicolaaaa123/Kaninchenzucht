@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { animalLabel } from "../utils/animalLabel";
 
 export interface AnimalComboboxOption {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name?: string | null;
 }
 
-function labelFor(a: AnimalComboboxOption) {
-  return `${a.chip_number}${a.name ? ` · ${a.name}` : ""}`;
-}
+const labelFor = animalLabel;
 
 interface AnimalComboboxProps {
   id?: string;

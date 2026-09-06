@@ -655,6 +655,10 @@ label {
   background: var(--color-danger);
 }
 
+.btn.accent {
+  background: var(--color-accent);
+}
+
 .btn.small {
   padding: 5px 10px;
   min-height: 30px;

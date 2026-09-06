@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import type { ScanResult, ScannedScore } from "../api/types";
+import { animalLabel } from "../utils/animalLabel";
 
 export function ScanEvaluationCard() {
   const navigate = useNavigate();
@@ -157,7 +158,7 @@ export function ScanEvaluationCard() {
                   </option>
                   {animals.data?.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {a.chip_number} {a.name ? `· ${a.name}` : ""}
+                      {animalLabel(a)}
                     </option>
                   ))}
                 </select>
@@ -171,7 +172,7 @@ export function ScanEvaluationCard() {
                   <p className="hint">
                     "{result.identification_number}" passt auf die Endziffern von{" "}
                     {result.candidate_animals.length} Tieren — bitte das richtige auswählen:{" "}
-                    {result.candidate_animals.map((c) => `${c.chip_number}${c.name ? ` (${c.name})` : ""}`).join(", ")}
+                    {result.candidate_animals.map((c) => animalLabel(c)).join(", ")}
                   </p>
                 )}
                 {result.breed_name && <p className="hint">Erkannte Rasse: {result.breed_name}</p>}

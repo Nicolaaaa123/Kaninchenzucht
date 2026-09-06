@@ -32,7 +32,7 @@ def match_animal_by_identifier(
     exact = [
         a
         for a in animals
-        if a.chip_number.strip().upper() == needle or (a.tattoo_number or "").strip().upper() == needle
+        if (a.chip_number or "").strip().upper() == needle or (a.tattoo_number or "").strip().upper() == needle
     ]
     if len(exact) == 1:
         return exact[0], []
@@ -45,7 +45,7 @@ def match_animal_by_identifier(
     suffix_matches = [
         a
         for a in animals
-        if a.chip_number.strip().upper().endswith(needle)
+        if (a.chip_number or "").strip().upper().endswith(needle)
         or (a.tattoo_number or "").strip().upper().endswith(needle)
     ]
     if len(suffix_matches) == 1:

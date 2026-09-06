@@ -163,7 +163,7 @@ export interface Feed {
 
 export interface AnimalListItem {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name: string | null;
   sex: Sex;
   status: AnimalStatus;
@@ -211,7 +211,7 @@ export interface Stall {
 
 export interface Animal {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   tattoo_number: string | null;
   name: string | null;
   sex: Sex;
@@ -243,7 +243,7 @@ export interface Animal {
 
 export interface ParentSummary {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name: string | null;
 }
 
@@ -332,7 +332,7 @@ export interface FeedingPlan {
 
 export interface PedigreeNode {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name: string | null;
   sex: Sex;
   breed_name: string | null;

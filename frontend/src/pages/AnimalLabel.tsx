@@ -29,7 +29,7 @@ export function AnimalLabel() {
       <div className="label-card" style={{ maxWidth: 320 }}>
         <QRCodeSVG value={url} size={110} />
         <div className="label-text">
-          <div className="chip">{a.chip_number}</div>
+          <div className="chip">{a.chip_number ?? "ohne Chip"}</div>
           {a.name && <div className="meta">{a.name}</div>}
           {a.breed && <div className="meta">{a.breed.name}</div>}
           {a.cage_box_label && <div className="meta">{a.cage_box_label}</div>}

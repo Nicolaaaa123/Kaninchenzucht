@@ -47,7 +47,7 @@ export function StallLabels() {
                     <>
                       <QRCodeSVG value={`${window.location.origin}/tiere/${occupant.id}`} size={64} />
                       <div className="label-text">
-                        <div className="chip">{occupant.chip_number}</div>
+                        <div className="chip">{occupant.chip_number ?? "ohne Chip"}</div>
                         {occupant.name && <div className="meta">{occupant.name}</div>}
                         <div className="meta">Box {box.label}</div>
                       </div>

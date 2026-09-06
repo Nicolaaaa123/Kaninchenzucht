@@ -22,7 +22,7 @@ export function AnimalLabels() {
           <div className="label-card" key={a.id}>
             <QRCodeSVG value={`${window.location.origin}/tiere/${a.id}`} size={80} />
             <div className="label-text">
-              <div className="chip">{a.chip_number}</div>
+              <div className="chip">{a.chip_number ?? "ohne Chip"}</div>
               {a.name && <div className="meta">{a.name}</div>}
               {a.breed && <div className="meta">{a.breed.name}</div>}
             </div>

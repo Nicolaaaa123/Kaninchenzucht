@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Area,
@@ -21,10 +21,12 @@ import { useAsync } from "../hooks/useAsync";
 import type { Evaluation, EvaluationScore, FeedingPhase } from "../api/types";
 import { EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
 import { AnimalCombobox } from "../components/AnimalCombobox";
+import { ScaleIcon } from "../components/Icons";
 import { PedigreeTree } from "../components/PedigreeTree";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
 import { buildWeightChartData, descendantsChartData, GROWTH_STATUS_LABELS, growthStatusClass } from "../utils/growth";
 import { niceAxisBounds } from "../utils/chartAxis";
+import { animalLabel } from "../utils/animalLabel";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Aktiv",
@@ -150,6 +152,12 @@ export function AnimalDetail() {
   const [weightDate, setWeightDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [weightGrams, setWeightGrams] = useState("");
   const [weightError, setWeightError] = useState<string | null>(null);
+  const weightGramsRef = useRef<HTMLInputElement>(null);
+
+  function handleQuickWeightJump() {
+    weightGramsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    weightGramsRef.current?.focus();
+  }
 
   const [showEvalForm, setShowEvalForm] = useState(false);
   const [evalDate, setEvalDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -214,7 +222,7 @@ export function AnimalDetail() {
   }
 
   function handleStartEditInfo() {
-    setChipNumber(a.chip_number);
+    setChipNumber(a.chip_number ?? "");
     setTattooNumber(a.tattoo_number ?? "");
     setAnimalName(a.name ?? "");
     setBirthDate(a.birth_date ?? "");
@@ -229,15 +237,11 @@ export function AnimalDetail() {
   }
 
   async function handleInfoSave() {
-    if (!chipNumber.trim()) {
-      setInfoError("Chip-Nummer darf nicht leer sein.");
-      return;
-    }
     setInfoSaving(true);
     setInfoError(null);
     try {
       await api.animals.update(id, {
-        chip_number: chipNumber.trim(),
+        chip_number: chipNumber.trim() || null,
         tattoo_number: tattooNumber.trim() || null,
         name: animalName.trim() || null,
         birth_date: birthDate || null,
@@ -412,9 +416,7 @@ export function AnimalDetail() {
       <div className="card section">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ marginBottom: 4 }}>
-              {a.chip_number} {a.name ? `· ${a.name}` : ""}
-            </h1>
+            <h1 style={{ marginBottom: 4 }}>{animalLabel(a)}</h1>
             <div className="subtitle">
               {SEX_LABELS[a.sex]} {a.breed ? `· ${a.breed.name}` : ""} {a.color_variant ? `· ${a.color_variant}` : ""}
             </div>
@@ -430,7 +432,7 @@ export function AnimalDetail() {
             <tbody>
               <tr>
                 <th>Chip-Nummer</th>
-                <td>{a.chip_number}</td>
+                <td>{a.chip_number ?? "–"}</td>
               </tr>
               {a.tattoo_number && (
                 <tr>
@@ -462,10 +464,7 @@ export function AnimalDetail() {
                 <th>Mutter</th>
                 <td>
                   {a.mother ? (
-                    <Link to={`/tiere/${a.mother.id}`}>
-                      {a.mother.chip_number}
-                      {a.mother.name ? ` · ${a.mother.name}` : ""}
-                    </Link>
+                    <Link to={`/tiere/${a.mother.id}`}>{animalLabel(a.mother)}</Link>
                   ) : (
                     "unbekannt"
                   )}
@@ -475,10 +474,7 @@ export function AnimalDetail() {
                 <th>Vater</th>
                 <td>
                   {a.father ? (
-                    <Link to={`/tiere/${a.father.id}`}>
-                      {a.father.chip_number}
-                      {a.father.name ? ` · ${a.father.name}` : ""}
-                    </Link>
+                    <Link to={`/tiere/${a.father.id}`}>{animalLabel(a.father)}</Link>
                   ) : (
                     "unbekannt"
                   )}
@@ -500,7 +496,7 @@ export function AnimalDetail() {
               </div>
             )}
             <div className="field">
-              <label htmlFor="edit-chip">Chip-Nummer *</label>
+              <label htmlFor="edit-chip">Chip-Nummer</label>
               <input id="edit-chip" type="text" value={chipNumber} onChange={(e) => setChipNumber(e.target.value)} />
             </div>
             <div className="field">
@@ -575,6 +571,9 @@ export function AnimalDetail() {
         )}
 
         <div className="toolbar" style={{ marginTop: 16, marginBottom: 0 }}>
+          <button className="btn accent" onClick={handleQuickWeightJump}>
+            <ScaleIcon size={16} /> Gewicht eintragen
+          </button>
           {!editingInfo && (
             <button className="btn secondary" onClick={handleStartEditInfo}>
               Angaben bearbeiten
@@ -787,7 +786,7 @@ export function AnimalDetail() {
                   .filter((c) => c.id !== id && c.sex === (a.sex === "female" ? "male" : "female"))
                   .map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
+                      {animalLabel(c)}
                     </option>
                   ))}
               </select>
@@ -932,6 +931,7 @@ export function AnimalDetail() {
             <label htmlFor="w-grams">Gewicht (g)</label>
             <input
               id="w-grams"
+              ref={weightGramsRef}
               type="number"
               inputMode="numeric"
               value={weightGrams}
@@ -1193,9 +1193,7 @@ export function AnimalDetail() {
         <div className="list">
           {children.data?.map((c) => (
             <Link className="list-item" to={`/tiere/${c.id}`} key={c.id}>
-              <span>
-                {c.chip_number} {c.name ? `· ${c.name}` : ""}
-              </span>
+              <span>{animalLabel(c)}</span>
               <span className={`badge status-${c.status}`}>{STATUS_LABELS[c.status]}</span>
             </Link>
           ))}

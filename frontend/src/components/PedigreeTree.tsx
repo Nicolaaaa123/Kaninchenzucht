@@ -18,7 +18,7 @@ function AncestorNode({ node }: { node: PedigreeNode | null }) {
   return (
     <div className="pedigree-branch">
       <Link to={`/tiere/${node.id}`} className="pedigree-node">
-        <div className="pedigree-chip">{node.chip_number}</div>
+        <div className="pedigree-chip">{node.chip_number ?? "ohne Chip"}</div>
         {node.name && <div className="pedigree-name">{node.name}</div>}
         {node.breed_name && <div className="pedigree-breed">{node.breed_name}</div>}
         {node.inbreeding_coefficient > 0 && (
@@ -42,7 +42,7 @@ export function PedigreeTree({ root }: { root: PedigreeNode }) {
     <div className="pedigree-tree">
       <div className="pedigree-branch">
         <div className="pedigree-node self">
-          <div className="pedigree-chip">{root.chip_number}</div>
+          <div className="pedigree-chip">{root.chip_number ?? "ohne Chip"}</div>
           {root.name && <div className="pedigree-name">{root.name}</div>}
         </div>
         <div className="pedigree-parents">

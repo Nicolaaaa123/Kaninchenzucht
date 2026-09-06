@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { LitterOverview } from "../components/LitterOverview";
 import { useAsync } from "../hooks/useAsync";
 import type { AnimalListItem, AnimalStatus, BreedingCategory } from "../api/types";
+import { animalLabel } from "../utils/animalLabel";
 
 const STATUS_LABELS: Record<AnimalStatus, string> = {
   active: "Aktiv",
@@ -135,7 +136,7 @@ export function Animals() {
     } else if (sortKey === "breed") {
       copy.sort((a, b) => (a.breed?.name ?? "").localeCompare(b.breed?.name ?? ""));
     } else {
-      copy.sort((a, b) => a.chip_number.localeCompare(b.chip_number));
+      copy.sort((a, b) => (a.chip_number ?? "").localeCompare(b.chip_number ?? ""));
     }
     return copy;
   }, [filtered, sortKey]);
@@ -163,7 +164,7 @@ export function Animals() {
       <Link className={`list-item category-${animal.category}`} to={`/tiere/${animal.id}`} key={animal.id}>
         <div>
           <div className="title">
-            {animal.chip_number} {animal.name ? `· ${animal.name}` : ""}
+            {animalLabel(animal)}
           </div>
           <div className="subtitle">
             {SEX_LABELS[animal.sex]}
@@ -188,8 +189,8 @@ export function Animals() {
       <h1>Tiere</h1>
       {litterCount && (
         <div className="card section" style={{ background: "var(--color-success-soft)", color: "var(--color-success)" }}>
-          {litterCount} Jungtiere angelegt — Chip-Nummern sind Platzhalter, bitte bei Gelegenheit durch
-          die echten ersetzen.
+          {litterCount} Jungtiere angelegt — noch ohne Chip-Nummer, bitte bei Gelegenheit einzeln
+          nachtragen.
         </div>
       )}
 

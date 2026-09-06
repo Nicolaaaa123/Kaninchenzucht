@@ -233,7 +233,7 @@ class StallOut(StallBase):
 
 # ---- Animal ----
 class AnimalBase(BaseModel):
-    chip_number: str
+    chip_number: str | None = None
     tattoo_number: str | None = None
     name: str | None = None
     sex: Sex = Sex.UNKNOWN
@@ -285,7 +285,7 @@ class AnimalUpdate(BaseModel):
 class ParentSummaryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
-    chip_number: str
+    chip_number: str | None = None
     name: str | None = None
 
 
@@ -305,7 +305,7 @@ class AnimalOut(AnimalBase):
 class AnimalListItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
-    chip_number: str
+    chip_number: str | None
     name: str | None
     sex: Sex
     status: AnimalStatus
@@ -624,7 +624,7 @@ class LitterStatsOut(BaseModel):
 # ---- Pedigree / Inzucht ----
 class PedigreeNode(BaseModel):
     id: str
-    chip_number: str
+    chip_number: str | None
     name: str | None
     sex: Sex
     breed_name: str | None

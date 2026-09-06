@@ -91,8 +91,8 @@ def update_litter(
 def _summary_from_members(litter_name: str, members: list[models.Animal]) -> schemas.LitterSummaryOut:
     birth_dates = [m.birth_date for m in members if m.birth_date]
     breed_names = sorted({m.breed.name for m in members if m.breed})
-    mothers = sorted({m.mother.chip_number for m in members if m.mother})
-    fathers = sorted({m.father.chip_number for m in members if m.father})
+    mothers = sorted({m.mother.chip_number for m in members if m.mother and m.mother.chip_number})
+    fathers = sorted({m.father.chip_number for m in members if m.father and m.father.chip_number})
     latest_weights = [m.weight_entries[-1].weight_grams for m in members if m.weight_entries]
     total_scores = [m.evaluations[-1].total_score for m in members if m.evaluations and m.evaluations[-1].total_score]
     return schemas.LitterSummaryOut(

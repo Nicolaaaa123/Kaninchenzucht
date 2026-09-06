@@ -246,7 +246,7 @@ class Animal(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=_uuid)
     tenant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tenants.id"), nullable=False, index=True)
-    chip_number: Mapped[str] = mapped_column(String(60), nullable=False, index=True)
+    chip_number: Mapped[str | None] = mapped_column(String(60), nullable=True, index=True)
     tattoo_number: Mapped[str | None] = mapped_column(String(60), nullable=True)
     name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     sex: Mapped[Sex] = mapped_column(_enum(Sex, "sex"), nullable=False, default=Sex.UNKNOWN)
