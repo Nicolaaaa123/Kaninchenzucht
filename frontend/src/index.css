@@ -918,7 +918,7 @@ th {
 /* Etiketten / QR-Druck */
 .label-sheet {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
 }
 
@@ -928,11 +928,11 @@ th {
 }
 
 .label-sheet .label-card .label-text .chip {
-  font-size: 1.3rem;
+  font-size: 1.7rem;
 }
 
 .label-sheet .label-card .label-text .meta {
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .label-card {
@@ -992,6 +992,9 @@ th {
   .app-main {
     max-width: none;
     padding: 0;
+  }
+  .label-sheet {
+    grid-template-columns: repeat(2, 1fr);
   }
   .label-card {
     border: 1px solid #999;
