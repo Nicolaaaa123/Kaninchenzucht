@@ -30,7 +30,8 @@ jobs:
       - name: rclone (OneDrive-Zugang) einrichten
         run: |
           mkdir -p ~/.config/rclone
-          echo "${{ secrets.RCLONE_CONFIG_BASE64 }}" | base64 -d > ~/.config/rclone/rclone.conf
+          echo "${{ secrets.RCLONE_CONFIG_BASE64 }}" | base64 -d --ignore-garbage > ~/.config/rclone/rclone.conf
+          test -s ~/.config/rclone/rclone.conf || (echo "rclone.conf ist leer -- RCLONE_CONFIG_BASE64 prüfen" && exit 1)
 
       - name: Dump nach OneDrive hochladen
         run: rclone copy backup/ onedrive:Kaninchenzucht-Backups --progress
