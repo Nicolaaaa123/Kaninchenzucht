@@ -24,7 +24,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           mkdir -p backup
-          pg_dump "$DATABASE_URL" --no-owner --no-privileges > "backup/kaninchenzucht-$(date +%Y-%m-%d).sql"
+          /usr/lib/postgresql/18/bin/pg_dump --version
+          /usr/lib/postgresql/18/bin/pg_dump "$DATABASE_URL" --no-owner --no-privileges > "backup/kaninchenzucht-$(date +%Y-%m-%d).sql"
 
       - name: rclone (OneDrive-Zugang) einrichten
         run: |
