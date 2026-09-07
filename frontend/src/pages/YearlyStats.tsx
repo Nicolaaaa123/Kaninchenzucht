@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
+import { niceAxisBounds } from "../utils/chartAxis";
 
 const ALL_POSITIONS = "__all__";
 
@@ -22,17 +23,31 @@ export function YearlyStats() {
   const chartData = useMemo(() => {
     if (!evaluations.data) return [];
     const rows = position === ALL_POSITIONS ? evaluations.data : evaluations.data.filter((r) => r.category_label === position);
-    const byYear = new Map<number, { points: number; maxPoints: number }>();
+
+    // Erst pro (Jahr, Rasse) die Positionen aufsummieren -- danach, falls in
+    // einem Jahr mehrere Rassen vorkommen (z.B. "Alle Rassen" gewaehlt),
+    // deren Jahrestotale MITTELN statt zu addieren. Sonst wuerde ein Jahr mit
+    // zwei Rassen faelschlich die doppelte Punktzahl zeigen.
+    const byYearBreed = new Map<string, { points: number; maxPoints: number }>();
     for (const r of rows) {
-      const entry = byYear.get(r.year) ?? { points: 0, maxPoints: 0 };
+      const key = `${r.year}|${r.breed_name}`;
+      const entry = byYearBreed.get(key) ?? { points: 0, maxPoints: 0 };
       entry.points += r.avg_points;
       entry.maxPoints += r.max_points;
-      byYear.set(r.year, entry);
+      byYearBreed.set(key, entry);
+    }
+    const byYear = new Map<number, { pointsList: number[]; maxPoints: number }>();
+    for (const [key, { points, maxPoints }] of byYearBreed) {
+      const year = Number(key.split("|")[0]);
+      const entry = byYear.get(year) ?? { pointsList: [], maxPoints };
+      entry.pointsList.push(points);
+      entry.maxPoints = maxPoints;
+      byYear.set(year, entry);
     }
     return Array.from(byYear.entries())
-      .map(([year, { points, maxPoints }]) => ({
+      .map(([year, { pointsList, maxPoints }]) => ({
         year,
-        points: Math.round(points * 10) / 10,
+        points: Math.round((pointsList.reduce((a, b) => a + b, 0) / pointsList.length) * 10) / 10,
         maxPoints,
       }))
       .sort((a, b) => a.year - b.year);
@@ -41,6 +56,18 @@ export function YearlyStats() {
   const chartMax = useMemo(() => {
     const max = Math.max(0, ...chartData.map((d) => d.maxPoints));
     return max > 0 ? max : undefined;
+  }, [chartData]);
+
+  // Statt immer bei 0 zu starten -- sonst wirken Unterschiede zwischen z.B.
+  // 92 und 96 Punkten auf einer 0-100-Skala kaum sichtbar. Runde, saubere
+  // Achsenwerte statt rechts eigener (teils fehlerhafter) Tick-Berechnung.
+  const { domain: yDomain, ticks: yTicks } = useMemo(() => {
+    if (chartData.length === 0) return niceAxisBounds(0, 100);
+    const values = chartData.map((d) => d.points);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = Math.max((max - min) * 0.1, 0.3);
+    return niceAxisBounds(Math.max(0, min - padding), max + padding);
   }, [chartData]);
 
   const evaluationsByYear = useMemo(() => {
@@ -92,7 +119,7 @@ export function YearlyStats() {
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="year" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, chartMax ?? "auto"]} tick={{ fontSize: 12 }} width={40} />
+                <YAxis domain={yDomain} ticks={yTicks} tick={{ fontSize: 12 }} width={40} />
                 <Tooltip
                   formatter={(value: unknown) => [
                     chartMax ? `${String(value)} / ${chartMax}` : String(value),

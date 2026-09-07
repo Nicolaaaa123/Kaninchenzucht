@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
+import { animalLabel } from "../utils/animalLabel";
 import {
   COMMON_BLE_SERVICE_UUIDS,
   isBluetoothReaderConfigured,
@@ -49,12 +50,12 @@ export function BluetoothScan() {
     try {
       const res = await api.animals.lookup(identifier);
       if (res.matched_animal) {
-        setLookupResult(`Gefunden: ${res.matched_animal.chip_number} — springe zur Tierseite…`);
+        setLookupResult(`Gefunden: ${animalLabel(res.matched_animal)} — springe zur Tierseite…`);
         setTimeout(() => navigate(`/tiere/${res.matched_animal!.id}`), 800);
       } else if (res.candidate_animals.length > 1) {
         setLookupResult(
           `Mehrdeutig — passt auf ${res.candidate_animals.length} Tiere: ${res.candidate_animals
-            .map((a) => a.chip_number)
+            .map((a) => animalLabel(a))
             .join(", ")}`,
         );
       } else {

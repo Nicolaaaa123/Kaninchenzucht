@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   Area,
@@ -18,11 +18,15 @@ import {
 } from "recharts";
 import { api, BASE_URL } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
-import type { EvaluationScore, FeedingPhase } from "../api/types";
+import type { Evaluation, EvaluationScore, FeedingPhase } from "../api/types";
 import { EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
+import { AnimalCombobox } from "../components/AnimalCombobox";
+import { ScaleIcon } from "../components/Icons";
 import { PedigreeTree } from "../components/PedigreeTree";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
 import { buildWeightChartData, descendantsChartData, GROWTH_STATUS_LABELS, growthStatusClass } from "../utils/growth";
+import { niceAxisBounds } from "../utils/chartAxis";
+import { animalLabel } from "../utils/animalLabel";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Aktiv",
@@ -93,12 +97,20 @@ export function AnimalDetail() {
       animal.data?.breed_id ? api.breeds.growthCurve(animal.data.breed_id, animal.data.sex) : Promise.resolve(null),
     [animal.data?.breed_id, animal.data?.sex],
   );
-  const breedActualCurve = useAsync(
-    () => (animal.data?.breed_id ? api.breeds.growthCurveActual(animal.data.breed_id) : Promise.resolve(null)),
-    [animal.data?.breed_id],
-  );
+  const siblingsGrowthCurve = useAsync(() => api.animals.siblingsGrowthCurve(id), [id]);
+  const [showSiblingsCurve, setShowSiblingsCurve] = useState(true);
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
+  const { domain: offspringRadarDomain, ticks: offspringRadarTicks } = useMemo(() => {
+    const values = (offspringScores.data?.categories.map((c) => c.average_pct) ?? []).filter(
+      (v): v is number => v != null,
+    );
+    if (values.length === 0) return niceAxisBounds(0, 100);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = Math.max((max - min) * 0.1, 0.5);
+    return niceAxisBounds(Math.max(0, min - padding), Math.min(100, max + padding));
+  }, [offspringScores.data]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),
     [id, evaluations.data?.length],
@@ -140,6 +152,12 @@ export function AnimalDetail() {
   const [weightDate, setWeightDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [weightGrams, setWeightGrams] = useState("");
   const [weightError, setWeightError] = useState<string | null>(null);
+  const weightGramsRef = useRef<HTMLInputElement>(null);
+
+  function handleQuickWeightJump() {
+    weightGramsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    weightGramsRef.current?.focus();
+  }
 
   const [showEvalForm, setShowEvalForm] = useState(false);
   const [evalDate, setEvalDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -148,6 +166,15 @@ export function AnimalDetail() {
   const [evalWeight, setEvalWeight] = useState("");
   const [evalError, setEvalError] = useState<string | null>(null);
   const [selectedEvalId, setSelectedEvalId] = useState<string>("");
+  const [editingEvalId, setEditingEvalId] = useState<string | null>(null);
+  const [editingEvalExtra, setEditingEvalExtra] = useState<{
+    exhibitor_number: string | null;
+    exhibitor_name: string | null;
+    exhibitor_address: string | null;
+    notes: string | null;
+    source: string;
+    photo_path: string | null;
+  } | null>(null);
 
   useEffect(() => {
     if (animal.data) {
@@ -195,7 +222,7 @@ export function AnimalDetail() {
   }
 
   function handleStartEditInfo() {
-    setChipNumber(a.chip_number);
+    setChipNumber(a.chip_number ?? "");
     setTattooNumber(a.tattoo_number ?? "");
     setAnimalName(a.name ?? "");
     setBirthDate(a.birth_date ?? "");
@@ -210,15 +237,11 @@ export function AnimalDetail() {
   }
 
   async function handleInfoSave() {
-    if (!chipNumber.trim()) {
-      setInfoError("Chip-Nummer darf nicht leer sein.");
-      return;
-    }
     setInfoSaving(true);
     setInfoError(null);
     try {
       await api.animals.update(id, {
-        chip_number: chipNumber.trim(),
+        chip_number: chipNumber.trim() || null,
         tattoo_number: tattooNumber.trim() || null,
         name: animalName.trim() || null,
         birth_date: birthDate || null,
@@ -305,20 +328,64 @@ export function AnimalDetail() {
   async function handleAddEvaluation(e: React.FormEvent) {
     e.preventDefault();
     setEvalError(null);
+    const data = {
+      evaluated_on: evalDate,
+      show_name: showName.trim() || null,
+      total_score: scoreTotal,
+      weight_grams: evalWeight ? Number(evalWeight) : null,
+      scores,
+      ...editingEvalExtra,
+    };
     try {
-      await api.evaluations.create(id, {
-        evaluated_on: evalDate,
-        show_name: showName.trim() || null,
-        total_score: scoreTotal,
-        weight_grams: evalWeight ? Number(evalWeight) : null,
-        scores,
-      });
+      if (editingEvalId) {
+        await api.evaluations.update(id, editingEvalId, data);
+      } else {
+        await api.evaluations.create(id, data);
+      }
       setShowEvalForm(false);
+      setEditingEvalId(null);
+      setEditingEvalExtra(null);
       setShowName("");
       setEvalWeight("");
       evaluations.reload();
     } catch (err) {
       setEvalError((err as Error).message);
+    }
+  }
+
+  function handleStartEditEvaluation(ev: Evaluation) {
+    setEditingEvalId(ev.id);
+    setEditingEvalExtra({
+      exhibitor_number: ev.exhibitor_number,
+      exhibitor_name: ev.exhibitor_name,
+      exhibitor_address: ev.exhibitor_address,
+      notes: ev.notes,
+      source: ev.source,
+      photo_path: ev.photo_path,
+    });
+    setEvalDate(ev.evaluated_on);
+    setShowName(ev.show_name ?? "");
+    setEvalWeight(ev.weight_grams ? String(ev.weight_grams) : "");
+    setScores(ev.scores.map((s) => ({ position_number: s.position_number, category_label: s.category_label, max_points: s.max_points, points: s.points })));
+    setEvalError(null);
+    setShowEvalForm(true);
+  }
+
+  function handleCancelEvaluationForm() {
+    setShowEvalForm(false);
+    setEditingEvalId(null);
+    setEditingEvalExtra(null);
+    setShowName("");
+    setEvalWeight("");
+    if (a.breed) {
+      setScores(
+        a.breed.scoring_positions.map((p) => ({
+          position_number: p.position_number,
+          category_label: p.label,
+          max_points: p.max_points,
+          points: p.max_points,
+        })),
+      );
     }
   }
 
@@ -337,7 +404,7 @@ export function AnimalDetail() {
     a.birth_date,
     growthCurve.data?.curve ?? null,
     growthPlan.data?.own_trend ?? null,
-    breedActualCurve.data && breedActualCurve.data.animal_count >= 2 ? breedActualCurve.data.points : null,
+    siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 ? siblingsGrowthCurve.data.points : null,
   );
 
   return (
@@ -349,9 +416,7 @@ export function AnimalDetail() {
       <div className="card section">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <h1 style={{ marginBottom: 4 }}>
-              {a.chip_number} {a.name ? `· ${a.name}` : ""}
-            </h1>
+            <h1 style={{ marginBottom: 4 }}>{animalLabel(a)}</h1>
             <div className="subtitle">
               {SEX_LABELS[a.sex]} {a.breed ? `· ${a.breed.name}` : ""} {a.color_variant ? `· ${a.color_variant}` : ""}
             </div>
@@ -367,7 +432,7 @@ export function AnimalDetail() {
             <tbody>
               <tr>
                 <th>Chip-Nummer</th>
-                <td>{a.chip_number}</td>
+                <td>{a.chip_number ?? "–"}</td>
               </tr>
               {a.tattoo_number && (
                 <tr>
@@ -397,11 +462,23 @@ export function AnimalDetail() {
               </tr>
               <tr>
                 <th>Mutter</th>
-                <td>{a.mother_id ? <Link to={`/tiere/${a.mother_id}`}>Zum Tier</Link> : "unbekannt"}</td>
+                <td>
+                  {a.mother ? (
+                    <Link to={`/tiere/${a.mother.id}`}>{animalLabel(a.mother)}</Link>
+                  ) : (
+                    "unbekannt"
+                  )}
+                </td>
               </tr>
               <tr>
                 <th>Vater</th>
-                <td>{a.father_id ? <Link to={`/tiere/${a.father_id}`}>Zum Tier</Link> : "unbekannt"}</td>
+                <td>
+                  {a.father ? (
+                    <Link to={`/tiere/${a.father.id}`}>{animalLabel(a.father)}</Link>
+                  ) : (
+                    "unbekannt"
+                  )}
+                </td>
               </tr>
               {a.notes && (
                 <tr>
@@ -419,7 +496,7 @@ export function AnimalDetail() {
               </div>
             )}
             <div className="field">
-              <label htmlFor="edit-chip">Chip-Nummer *</label>
+              <label htmlFor="edit-chip">Chip-Nummer</label>
               <input id="edit-chip" type="text" value={chipNumber} onChange={(e) => setChipNumber(e.target.value)} />
             </div>
             <div className="field">
@@ -460,29 +537,23 @@ export function AnimalDetail() {
             </div>
             <div className="field">
               <label htmlFor="edit-mother">Mutter</label>
-              <select id="edit-mother" value={motherIdEdit} onChange={(e) => setMotherIdEdit(e.target.value)}>
-                <option value="">unbekannt</option>
-                {candidates.data
-                  ?.filter((c) => c.sex === "female" && c.id !== id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
-                    </option>
-                  ))}
-              </select>
+              <AnimalCombobox
+                id="edit-mother"
+                options={candidates.data?.filter((c) => c.sex === "female" && c.id !== id) ?? []}
+                value={motherIdEdit}
+                onChange={setMotherIdEdit}
+                placeholder="unbekannt"
+              />
             </div>
             <div className="field">
               <label htmlFor="edit-father">Vater</label>
-              <select id="edit-father" value={fatherIdEdit} onChange={(e) => setFatherIdEdit(e.target.value)}>
-                <option value="">unbekannt</option>
-                {candidates.data
-                  ?.filter((c) => c.sex === "male" && c.id !== id)
-                  .map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
-                    </option>
-                  ))}
-              </select>
+              <AnimalCombobox
+                id="edit-father"
+                options={candidates.data?.filter((c) => c.sex === "male" && c.id !== id) ?? []}
+                value={fatherIdEdit}
+                onChange={setFatherIdEdit}
+                placeholder="unbekannt"
+              />
             </div>
             <div className="field" style={{ gridColumn: "1 / -1" }}>
               <label htmlFor="edit-notes">Notizen</label>
@@ -500,6 +571,9 @@ export function AnimalDetail() {
         )}
 
         <div className="toolbar" style={{ marginTop: 16, marginBottom: 0 }}>
+          <button className="btn accent" onClick={handleQuickWeightJump}>
+            <ScaleIcon size={16} /> Gewicht eintragen
+          </button>
           {!editingInfo && (
             <button className="btn secondary" onClick={handleStartEditInfo}>
               Angaben bearbeiten
@@ -712,7 +786,7 @@ export function AnimalDetail() {
                   .filter((c) => c.id !== id && c.sex === (a.sex === "female" ? "male" : "female"))
                   .map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.chip_number} {c.name ? `· ${c.name}` : ""}
+                      {animalLabel(c)}
                     </option>
                   ))}
               </select>
@@ -736,6 +810,17 @@ export function AnimalDetail() {
 
       <div className="card section">
         <h2>Gewichtshistorie & Peak-Fenster</h2>
+        {siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 && (
+          <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontWeight: 400 }}>
+            <input
+              type="checkbox"
+              checked={showSiblingsCurve}
+              onChange={(e) => setShowSiblingsCurve(e.target.checked)}
+              style={{ width: "auto" }}
+            />
+            Ø Geschwister anzeigen ({siblingsGrowthCurve.data.sibling_count})
+          </label>
+        )}
         {chartData.length > 0 && (
           <div style={{ height: 220, marginBottom: 16 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -775,14 +860,14 @@ export function AnimalDetail() {
                     connectNulls
                   />
                 )}
-                {breedActualCurve.data && breedActualCurve.data.animal_count >= 2 && (
+                {showSiblingsCurve && siblingsGrowthCurve.data && siblingsGrowthCurve.data.sibling_count >= 1 && (
                   <Line
                     type="monotone"
-                    dataKey="breedActual"
-                    name={`Ø tatsächlich (${breedActualCurve.data.animal_count} Tiere)`}
+                    dataKey="siblingsActual"
+                    name={`Ø Geschwister (${siblingsGrowthCurve.data.sibling_count})`}
                     stroke="#0d9488"
                     strokeWidth={1.5}
-                    dot={false}
+                    dot={{ r: 3 }}
                     connectNulls
                   />
                 )}
@@ -846,6 +931,7 @@ export function AnimalDetail() {
             <label htmlFor="w-grams">Gewicht (g)</label>
             <input
               id="w-grams"
+              ref={weightGramsRef}
               type="number"
               inputMode="numeric"
               value={weightGrams}
@@ -910,13 +996,21 @@ export function AnimalDetail() {
         {!a.breed_id && <p className="hint">Für die standardkonforme Bewertungsskala zuerst eine Rasse zuordnen.</p>}
 
         {a.breed_id && !showEvalForm && (
-          <button className="btn" onClick={() => setShowEvalForm(true)}>
+          <button
+            className="btn"
+            onClick={() => {
+              setEditingEvalId(null);
+              setEditingEvalExtra(null);
+              setShowEvalForm(true);
+            }}
+          >
             + Bewertung erfassen
           </button>
         )}
 
         {showEvalForm && (
           <form className="card" onSubmit={handleAddEvaluation} style={{ marginBottom: 16 }}>
+            <h3 style={{ marginTop: 0 }}>{editingEvalId ? "Bewertung bearbeiten" : "Neue Bewertung"}</h3>
             {evalError && <div className="error-banner">{evalError}</div>}
             <div className="form-grid">
               <div className="field">
@@ -970,7 +1064,7 @@ export function AnimalDetail() {
               <button className="btn" type="submit">
                 Speichern
               </button>
-              <button className="btn secondary" type="button" onClick={() => setShowEvalForm(false)}>
+              <button className="btn secondary" type="button" onClick={handleCancelEvaluationForm}>
                 Abbrechen
               </button>
             </div>
@@ -1026,6 +1120,9 @@ export function AnimalDetail() {
                     </a>
                   )}
                   <div className="toolbar" style={{ marginTop: 12, marginBottom: 0 }}>
+                    <button className="btn secondary small" onClick={() => handleStartEditEvaluation(ev)}>
+                      Bearbeiten
+                    </button>
                     <button className="btn danger small" onClick={() => handleDeleteEvaluation(ev.id)}>
                       Diese Karte löschen
                     </button>
@@ -1054,7 +1151,7 @@ export function AnimalDetail() {
                 <RadarChart data={offspringScores.data.categories}>
                   <PolarGrid stroke="var(--color-border)" />
                   <PolarAngleAxis dataKey="category_label" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
+                  <PolarRadiusAxis domain={offspringRadarDomain} ticks={offspringRadarTicks} tick={{ fontSize: 9 }} />
                   <Radar
                     name="Ø Prozent vom Höchstwert"
                     dataKey="average_pct"
@@ -1096,9 +1193,7 @@ export function AnimalDetail() {
         <div className="list">
           {children.data?.map((c) => (
             <Link className="list-item" to={`/tiere/${c.id}`} key={c.id}>
-              <span>
-                {c.chip_number} {c.name ? `· ${c.name}` : ""}
-              </span>
+              <span>{animalLabel(c)}</span>
               <span className={`badge status-${c.status}`}>{STATUS_LABELS[c.status]}</span>
             </Link>
           ))}

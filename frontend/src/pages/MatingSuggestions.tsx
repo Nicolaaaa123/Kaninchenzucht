@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
+import { animalLabel } from "../utils/animalLabel";
 
 export function MatingSuggestions() {
   const { id: routeId } = useParams<{ id: string }>();
@@ -38,7 +39,7 @@ export function MatingSuggestions() {
       <Link className="back-link" to={`/tiere/${id}`}>
         ← Zurück zum Tier
       </Link>
-      <h1>Paarungsvorschläge{animal.data ? ` für ${animal.data.chip_number}` : ""}</h1>
+      <h1>Paarungsvorschläge{animal.data ? ` für ${animalLabel(animal.data)}` : ""}</h1>
       <p className="hint" style={{ marginBottom: 16 }}>
         Heuristische Rangliste aus letzter Bewertung, Inzuchtkoeffizient der Nachkommen, ergänzenden
         Stärken/Schwächen und optional gezielt gewählten Bewertungspositionen — kein genetisches
@@ -139,8 +140,7 @@ export function MatingSuggestions() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <div className="title">
-                  #{i + 1} · <Link to={`/tiere/${s.animal.id}`}>{s.animal.chip_number}</Link>{" "}
-                  {s.animal.name ? `· ${s.animal.name}` : ""}
+                  #{i + 1} · <Link to={`/tiere/${s.animal.id}`}>{animalLabel(s.animal)}</Link>
                 </div>
                 <div className="subtitle">{s.animal.breed?.name ?? ""}</div>
                 <ul style={{ margin: "8px 0 0", paddingLeft: 18, fontSize: "0.85rem" }}>

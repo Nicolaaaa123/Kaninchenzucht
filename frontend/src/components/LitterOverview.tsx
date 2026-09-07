@@ -4,6 +4,7 @@ import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip,
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import { descendantsChartData } from "../utils/growth";
+import { animalLabel } from "../utils/animalLabel";
 
 const SEX_LABELS: Record<string, string> = {
   male: "♂",
@@ -242,7 +243,7 @@ function LitterAnimalsPanel({ litterName }: { litterName: string }) {
       {animals.data?.map((a) => (
         <Link className="list-item" to={`/tiere/${a.id}`} key={a.id}>
           <span>
-            {a.chip_number} {a.name ? `· ${a.name}` : ""}
+            {animalLabel(a)}
           </span>
           <span className="subtitle">
             {SEX_LABELS[a.sex]}

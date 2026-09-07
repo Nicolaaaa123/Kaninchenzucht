@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { LitterOverview } from "../components/LitterOverview";
 import { useAsync } from "../hooks/useAsync";
 import type { AnimalListItem, AnimalStatus, BreedingCategory } from "../api/types";
+import { animalLabel } from "../utils/animalLabel";
 
 const STATUS_LABELS: Record<AnimalStatus, string> = {
   active: "Aktiv",
@@ -29,13 +30,57 @@ const CATEGORY_ORDER: BreedingCategory[] = ["breeding", "young", "external"];
 
 type SortKey = "chip" | "year" | "breed";
 
+interface StoredFilters {
+  search?: string;
+  status?: AnimalStatus | "";
+  sortKey?: SortKey;
+  breedIdFilter?: string;
+  colorFilter?: string;
+}
+
+const FILTERS_STORAGE_KEY = "kaninchenzucht.animals.filters";
+
+function loadStoredFilters(): StoredFilters {
+  try {
+    const raw = localStorage.getItem(FILTERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredFilters(patch: StoredFilters) {
+  try {
+    localStorage.setItem(FILTERS_STORAGE_KEY, JSON.stringify({ ...loadStoredFilters(), ...patch }));
+  } catch {
+    // localStorage nicht verfügbar (z.B. privates Fenster) -- Filter gelten dann nur für diesen Besuch
+  }
+}
+
 export function Animals() {
   const [searchParams] = useSearchParams();
   const litterCount = searchParams.get("wurf");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<AnimalStatus | "">("");
-  const [sortKey, setSortKey] = useState<SortKey>("chip");
-  const [breedFilter, setBreedFilter] = useState<string>("all");
+
+  const initialFilters = useMemo(loadStoredFilters, []);
+  const [search, setSearchState] = useState(initialFilters.search ?? "");
+  const [status, setStatusState] = useState<AnimalStatus | "">(initialFilters.status ?? "active");
+  const [sortKey, setSortKeyState] = useState<SortKey>(initialFilters.sortKey ?? "chip");
+  const [breedIdFilter, setBreedIdFilterState] = useState(initialFilters.breedIdFilter ?? "all");
+  const [colorFilter, setColorFilterState] = useState(initialFilters.colorFilter ?? "all");
+
+  const setSearch = (v: string) => {
+    setSearchState(v);
+    saveStoredFilters({ search: v });
+  };
+  const setStatus = (v: AnimalStatus | "") => {
+    setStatusState(v);
+    saveStoredFilters({ status: v });
+  };
+  const setSortKey = (v: SortKey) => {
+    setSortKeyState(v);
+    saveStoredFilters({ sortKey: v });
+  };
+
   const [viewMode, setViewMode] = useState<"list" | "litters">(
     searchParams.get("view") === "litters" ? "litters" : "list",
   );
@@ -45,24 +90,43 @@ export function Animals() {
   );
 
   const breedOptions = useMemo(() => {
-    const map = new Map<string, { key: string; breedId: string; breedName: string; colorVariant: string | null }>();
+    const map = new Map<string, { breedId: string; breedName: string }>();
     for (const a of data ?? []) {
       if (!a.breed) continue;
-      const key = `${a.breed.id}|${a.color_variant ?? ""}`;
-      if (!map.has(key)) {
-        map.set(key, { key, breedId: a.breed.id, breedName: a.breed.name, colorVariant: a.color_variant });
-      }
+      if (!map.has(a.breed.id)) map.set(a.breed.id, { breedId: a.breed.id, breedName: a.breed.name });
     }
-    return Array.from(map.values()).sort(
-      (a, b) => a.breedName.localeCompare(b.breedName) || (a.colorVariant ?? "").localeCompare(b.colorVariant ?? ""),
-    );
+    return Array.from(map.values()).sort((a, b) => a.breedName.localeCompare(b.breedName));
   }, [data]);
+
+  const colorOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const a of data ?? []) {
+      if (!a.color_variant) continue;
+      if (breedIdFilter !== "all" && a.breed?.id !== breedIdFilter) continue;
+      set.add(a.color_variant);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [data, breedIdFilter]);
+
+  function handleBreedFilterChange(value: string) {
+    setBreedIdFilterState(value);
+    setColorFilterState("all");
+    saveStoredFilters({ breedIdFilter: value, colorFilter: "all" });
+  }
+
+  function handleColorFilterChange(value: string) {
+    setColorFilterState(value);
+    saveStoredFilters({ colorFilter: value });
+  }
 
   const filtered = useMemo(() => {
     if (!data) return data;
-    if (breedFilter === "all") return data;
-    return data.filter((a) => a.breed && `${a.breed.id}|${a.color_variant ?? ""}` === breedFilter);
-  }, [data, breedFilter]);
+    return data.filter(
+      (a) =>
+        (breedIdFilter === "all" || a.breed?.id === breedIdFilter) &&
+        (colorFilter === "all" || a.color_variant === colorFilter),
+    );
+  }, [data, breedIdFilter, colorFilter]);
 
   const sorted = useMemo(() => {
     if (!filtered) return filtered;
@@ -72,17 +136,17 @@ export function Animals() {
     } else if (sortKey === "breed") {
       copy.sort((a, b) => (a.breed?.name ?? "").localeCompare(b.breed?.name ?? ""));
     } else {
-      copy.sort((a, b) => a.chip_number.localeCompare(b.chip_number));
+      copy.sort((a, b) => (a.chip_number ?? "").localeCompare(b.chip_number ?? ""));
     }
     return copy;
   }, [filtered, sortKey]);
 
   const groupedByCategory = useMemo(() => {
-    if (!sorted || breedFilter === "all") return null;
+    if (!sorted || (breedIdFilter === "all" && colorFilter === "all")) return null;
     const buckets: Record<BreedingCategory, AnimalListItem[]> = { breeding: [], young: [], external: [] };
     for (const a of sorted) buckets[a.category].push(a);
     return buckets;
-  }, [sorted, breedFilter]);
+  }, [sorted, breedIdFilter, colorFilter]);
 
   const youngLitters = useMemo(() => {
     if (!groupedByCategory) return null;
@@ -100,7 +164,7 @@ export function Animals() {
       <Link className={`list-item category-${animal.category}`} to={`/tiere/${animal.id}`} key={animal.id}>
         <div>
           <div className="title">
-            {animal.chip_number} {animal.name ? `· ${animal.name}` : ""}
+            {animalLabel(animal)}
           </div>
           <div className="subtitle">
             {SEX_LABELS[animal.sex]}
@@ -125,26 +189,38 @@ export function Animals() {
       <h1>Tiere</h1>
       {litterCount && (
         <div className="card section" style={{ background: "var(--color-success-soft)", color: "var(--color-success)" }}>
-          {litterCount} Jungtiere angelegt — Chip-Nummern sind Platzhalter, bitte bei Gelegenheit durch
-          die echten ersetzen.
+          {litterCount} Jungtiere angelegt — noch ohne Chip-Nummer, bitte bei Gelegenheit einzeln
+          nachtragen.
         </div>
       )}
 
       {breedOptions.length > 0 && (
-        <div className="page-tabs">
-          <button className={`page-tab ${breedFilter === "all" ? "active" : ""}`} onClick={() => setBreedFilter("all")}>
-            Alle Rassen
-          </button>
-          {breedOptions.map((opt) => (
-            <button
-              key={opt.key}
-              className={`page-tab ${breedFilter === opt.key ? "active" : ""}`}
-              onClick={() => setBreedFilter(opt.key)}
-            >
-              {opt.breedName}
-              {opt.colorVariant ? ` · ${opt.colorVariant}` : ""}
-            </button>
-          ))}
+        <div className="toolbar">
+          <select
+            value={breedIdFilter}
+            onChange={(e) => handleBreedFilterChange(e.target.value)}
+            style={{ flex: 1 }}
+          >
+            <option value="all">Alle Rassen</option>
+            {breedOptions.map((opt) => (
+              <option key={opt.breedId} value={opt.breedId}>
+                {opt.breedName}
+              </option>
+            ))}
+          </select>
+          <select
+            value={colorFilter}
+            onChange={(e) => handleColorFilterChange(e.target.value)}
+            disabled={colorOptions.length === 0}
+            style={{ flex: 1 }}
+          >
+            <option value="all">Alle Farbenschläge</option>
+            {colorOptions.map((color) => (
+              <option key={color} value={color}>
+                {color}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 

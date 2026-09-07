@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api/client";
+import { AnimalCombobox } from "../components/AnimalCombobox";
 import { useAsync } from "../hooks/useAsync";
 
 export function LitterNew() {
@@ -95,7 +96,11 @@ export function LitterNew() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!motherId || !birthDate) return;
+    if (!motherId) {
+      setError("Bitte eine Mutter auswählen.");
+      return;
+    }
+    if (!birthDate) return;
     if (countMale + countFemale + countUnknown <= 0) {
       setError("Mindestens ein Jungtier angeben.");
       return;
@@ -146,25 +151,17 @@ export function LitterNew() {
         <div className="form-grid">
           <div className="field">
             <label htmlFor="mother">Mutter *</label>
-            <select id="mother" value={motherId} onChange={(e) => setMotherId(e.target.value)} required>
-              <option value="">– wählen –</option>
-              {mothers.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.chip_number} {m.name ? `· ${m.name}` : ""}
-                </option>
-              ))}
-            </select>
+            <AnimalCombobox id="mother" options={mothers} value={motherId} onChange={setMotherId} />
           </div>
           <div className="field">
             <label htmlFor="father">Vater</label>
-            <select id="father" value={fatherId} onChange={(e) => setFatherId(e.target.value)}>
-              <option value="">– unbekannt –</option>
-              {fathers.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.chip_number} {f.name ? `· ${f.name}` : ""}
-                </option>
-              ))}
-            </select>
+            <AnimalCombobox
+              id="father"
+              options={fathers}
+              value={fatherId}
+              onChange={setFatherId}
+              placeholder="– unbekannt –"
+            />
           </div>
           <div className="field">
             <label htmlFor="mating-date">Deckdatum</label>

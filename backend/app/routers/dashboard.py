@@ -5,12 +5,8 @@ from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from app.auth import get_current_user
 from app.database import get_db
-from app.services.growth import growth_status
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
-
-ATTENTION_LIMIT = 8
-GROWTH_ATTENTION_THRESHOLD_PCT = -15.0
 
 
 @router.get("", response_model=schemas.DashboardOut)
@@ -18,7 +14,9 @@ def get_dashboard(db: Session = Depends(get_db), current_user: models.User = Dep
     tenant_id = current_user.tenant_id
 
     total_animals = db.execute(
-        select(func.count(models.Animal.id)).where(models.Animal.tenant_id == tenant_id)
+        select(func.count(models.Animal.id)).where(
+            models.Animal.status == models.AnimalStatus.ACTIVE, models.Animal.tenant_id == tenant_id
+        )
     ).scalar_one()
 
     status_rows = db.execute(
@@ -87,41 +85,6 @@ def get_dashboard(db: Session = Depends(get_db), current_user: models.User = Dep
         .all()
     )
 
-    # "Braucht Aufmerksamkeit": fehlende Stammdaten oder deutlich hinter der
-    # Rassekurve zurückliegende aktive Tiere -- damit man beim Reinschauen
-    # direkt sieht, wo etwas fehlt oder nachjustiert werden sollte.
-    active_animals = (
-        db.execute(
-            select(models.Animal)
-            .options(joinedload(models.Animal.breed), joinedload(models.Animal.weight_entries))
-            .where(models.Animal.status == models.AnimalStatus.ACTIVE, models.Animal.tenant_id == tenant_id)
-        )
-        .unique()
-        .scalars()
-        .all()
-    )
-
-    attention_items: list[schemas.AttentionItemOut] = []
-    for a in active_animals:
-        reason = None
-        if not a.birth_date:
-            reason = "Kein Geburtsdatum hinterlegt"
-        elif not a.breed_id:
-            reason = "Keine Rasse zugeordnet"
-        elif a.breed and a.weight_entries:
-            latest = a.weight_entries[-1]
-            status = growth_status(
-                a.breed, a.birth_date, latest.weight_grams, latest.measured_on, None, sex=a.sex
-            )
-            if status.deviation_pct is not None and status.deviation_pct < GROWTH_ATTENTION_THRESHOLD_PCT:
-                reason = f"Wachstum deutlich hinterher ({status.deviation_pct}%)"
-        if reason:
-            attention_items.append(
-                schemas.AttentionItemOut(animal_id=a.id, chip_number=a.chip_number, name=a.name, reason=reason)
-            )
-        if len(attention_items) >= ATTENTION_LIMIT:
-            break
-
     return schemas.DashboardOut(
         total_animals=total_animals,
         animals_by_status=animals_by_status,
@@ -131,5 +94,4 @@ def get_dashboard(db: Session = Depends(get_db), current_user: models.User = Dep
         free_box_capacity=free_box_capacity,
         recent_weight_entries=recent_weights,
         recent_evaluations=recent_evaluations,
-        attention_items=attention_items,
     )

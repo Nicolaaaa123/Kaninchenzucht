@@ -191,7 +191,7 @@ def create_animal(
     if payload.sex == models.Sex.MALE and payload.mating_date:
         raise HTTPException(status_code=422, detail="Ein Deckdatum ist bei Rammlern nicht möglich")
     data = payload.model_dump()
-    if db.execute(
+    if data.get("chip_number") and db.execute(
         select(models.Animal).where(
             models.Animal.chip_number == data["chip_number"], models.Animal.tenant_id == current_user.tenant_id
         )
@@ -213,8 +213,9 @@ def create_litter(
 ):
     """Legt für einen Wurf auf einmal mehrere Jungtiere an, statt sie einzeln
     eintragen zu müssen. Namen werden automatisch nach der Konvention
-    vergeben (Rammler = Anfangsbuchstabe des Vaters, Zibbe = der Mutter),
-    Chip-Nummern erhalten einen Platzhalter zur späteren Ersetzung."""
+    vergeben (Rammler = Anfangsbuchstabe des Vaters, Zibbe = der Mutter).
+    Chip-Nummern werden nicht erfunden -- die Tiere werden ohne Chip-Nummer
+    angelegt und können später einzeln nachgetragen werden."""
     mother = _get_owned(db, payload.mother_id, current_user.tenant_id)
     father = _get_owned(db, payload.father_id, current_user.tenant_id) if payload.father_id else None
     if payload.breed_id:
@@ -243,14 +244,11 @@ def create_litter(
 
     created: list[models.Animal] = []
 
-    def _chip_placeholder() -> str:
-        return f"J-{uuid.uuid4().hex[:6].upper()}-{payload.birth_date.strftime('%y%m%d')}"
-
     for i in range(payload.count_male):
         created.append(
             models.Animal(
                 tenant_id=current_user.tenant_id,
-                chip_number=_chip_placeholder(),
+                chip_number=None,
                 name=male_names[i],
                 sex=models.Sex.MALE,
                 birth_date=payload.birth_date,
@@ -265,7 +263,7 @@ def create_litter(
         created.append(
             models.Animal(
                 tenant_id=current_user.tenant_id,
-                chip_number=_chip_placeholder(),
+                chip_number=None,
                 name=female_names[i],
                 sex=models.Sex.FEMALE,
                 birth_date=payload.birth_date,
@@ -280,7 +278,7 @@ def create_litter(
         created.append(
             models.Animal(
                 tenant_id=current_user.tenant_id,
-                chip_number=_chip_placeholder(),
+                chip_number=None,
                 sex=models.Sex.UNKNOWN,
                 birth_date=payload.birth_date,
                 breed_id=breed_id,
@@ -338,7 +336,7 @@ def update_animal(
         raise HTTPException(status_code=422, detail="Trächtigkeit/Säugezeit ist bei Rammlern nicht möglich")
     if data.get("mating_date") and effective_sex == models.Sex.MALE:
         raise HTTPException(status_code=422, detail="Ein Deckdatum ist bei Rammlern nicht möglich")
-    if "chip_number" in data and data["chip_number"] != animal.chip_number:
+    if data.get("chip_number") and data["chip_number"] != animal.chip_number:
         exists = db.execute(
             select(models.Animal).where(
                 models.Animal.chip_number == data["chip_number"],
@@ -599,6 +597,38 @@ def get_descendants_growth(
     return schemas.DescendantsGrowthOut(
         animal_id=animal_id,
         descendant_count=len(descendants),
+        points=[schemas.DescendantGrowthPointOut(**vars(p)) for p in points],
+    )
+
+
+@router.get("/{animal_id}/siblings-growth-curve", response_model=schemas.SiblingsGrowthCurveOut)
+def get_siblings_growth_curve(
+    animal_id: uuid.UUID, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
+):
+    """Altersbasierte Durchschnittsgewichtskurve der vollen Geschwister
+    (gleiche Mutter + Vater) dieses Tiers."""
+    animal = _get_owned(db, animal_id, current_user.tenant_id)
+    siblings: list[models.Animal] = []
+    if animal.mother_id and animal.father_id:
+        siblings = (
+            db.execute(
+                select(models.Animal)
+                .options(joinedload(models.Animal.weight_entries))
+                .where(
+                    models.Animal.tenant_id == current_user.tenant_id,
+                    models.Animal.mother_id == animal.mother_id,
+                    models.Animal.father_id == animal.father_id,
+                    models.Animal.id != animal.id,
+                )
+            )
+            .unique()
+            .scalars()
+            .all()
+        )
+    points = descendants_growth_curve(siblings)
+    return schemas.SiblingsGrowthCurveOut(
+        animal_id=animal_id,
+        sibling_count=len(siblings),
         points=[schemas.DescendantGrowthPointOut(**vars(p)) for p in points],
     )
 

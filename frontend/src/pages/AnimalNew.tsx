@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
+import { AnimalCombobox } from "../components/AnimalCombobox";
 import { useAsync } from "../hooks/useAsync";
 import type { Sex } from "../api/types";
 
@@ -171,25 +172,23 @@ export function AnimalNew() {
           </div>
           <div className="field">
             <label htmlFor="mother">Mutter</label>
-            <select id="mother" value={motherId} onChange={(e) => setMotherId(e.target.value)}>
-              <option value="">– unbekannt –</option>
-              {mothers.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.chip_number} {m.name ? `· ${m.name}` : ""}
-                </option>
-              ))}
-            </select>
+            <AnimalCombobox
+              id="mother"
+              options={mothers}
+              value={motherId}
+              onChange={setMotherId}
+              placeholder="– unbekannt –"
+            />
           </div>
           <div className="field">
             <label htmlFor="father">Vater</label>
-            <select id="father" value={fatherId} onChange={(e) => setFatherId(e.target.value)}>
-              <option value="">– unbekannt –</option>
-              {fathers.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.chip_number} {f.name ? `· ${f.name}` : ""}
-                </option>
-              ))}
-            </select>
+            <AnimalCombobox
+              id="father"
+              options={fathers}
+              value={fatherId}
+              onChange={setFatherId}
+              placeholder="– unbekannt –"
+            />
           </div>
         </div>
         <div className="field">

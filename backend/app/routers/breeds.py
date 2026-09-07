@@ -114,18 +114,21 @@ def get_growth_curve(
 
 @router.get("/{breed_id}/growth-curve-actual", response_model=schemas.BreedGrowthCurveActualOut)
 def get_growth_curve_actual(
-    breed_id: uuid.UUID, db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)
+    breed_id: uuid.UUID,
+    color_variant: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
 ):
     """Tatsächliche Durchschnittsgewichtskurve aus allen erfassten
-    Gewichtseinträgen aller Tiere dieser Rasse — im Unterschied zur
-    theoretischen Gompertz-/Stützpunkt-Kurve unter /growth-curve."""
+    Gewichtseinträgen aller Tiere dieser Rasse (optional zusätzlich auf einen
+    Farbenschlag eingegrenzt) — im Unterschied zur theoretischen Gompertz-/
+    Stützpunkt-Kurve unter /growth-curve."""
     _get_owned(db, breed_id, current_user.tenant_id)
+    conditions = [models.Animal.breed_id == breed_id, models.Animal.tenant_id == current_user.tenant_id]
+    if color_variant:
+        conditions.append(models.Animal.color_variant == color_variant)
     animals = (
-        db.execute(
-            select(models.Animal)
-            .options(joinedload(models.Animal.weight_entries))
-            .where(models.Animal.breed_id == breed_id, models.Animal.tenant_id == current_user.tenant_id)
-        )
+        db.execute(select(models.Animal).options(joinedload(models.Animal.weight_entries)).where(*conditions))
         .unique()
         .scalars()
         .all()

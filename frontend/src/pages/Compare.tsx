@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../api/client";
+import { AnimalCombobox } from "../components/AnimalCombobox";
 import { useAsync } from "../hooks/useAsync";
 import type { Animal, WeightEntry } from "../api/types";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
+import { animalLabel } from "../utils/animalLabel";
 
 const COLORS = ["#4338ca", "#0d9488", "#d97706", "#dc2626", "#7c3aed", "#0ea5e9"];
 
@@ -75,7 +77,7 @@ export function Compare() {
         const row: Record<string, string | number> = { date };
         details.data!.forEach((e) => {
           const entry = e.weights.find((w) => w.measured_on === date);
-          if (entry) row[e.animal.chip_number] = entry.weight_grams;
+          if (entry) row[e.animal.id] = entry.weight_grams;
         });
         return row;
       });
@@ -97,16 +99,14 @@ export function Compare() {
 
       <div className="card section">
         <div className="toolbar" style={{ marginBottom: 0 }}>
-          <select value={addValue} onChange={(e) => addAnimal(e.target.value)} style={{ maxWidth: 320 }}>
-            <option value="">Tier hinzufügen…</option>
-            {allAnimals.data
-              ?.filter((a) => !selectedIds.includes(a.id))
-              .map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.chip_number} {a.name ? `· ${a.name}` : ""}
-                </option>
-              ))}
-          </select>
+          <div style={{ maxWidth: 320, flex: 1 }}>
+            <AnimalCombobox
+              options={allAnimals.data?.filter((a) => !selectedIds.includes(a.id)) ?? []}
+              value={addValue}
+              onChange={addAnimal}
+              placeholder="Tier hinzufügen…"
+            />
+          </div>
         </div>
       </div>
 
@@ -119,7 +119,9 @@ export function Compare() {
                   <th></th>
                   {details.data.map((e, i) => (
                     <td key={e.animal.id}>
-                      <strong style={{ color: COLORS[i % COLORS.length] }}>{e.animal.chip_number}</strong>
+                      <strong style={{ color: COLORS[i % COLORS.length] }}>
+                        {e.animal.chip_number ?? e.animal.name ?? "ohne Chip-Nr."}
+                      </strong>
                       <button className="btn secondary small" style={{ marginLeft: 6 }} onClick={() => removeAnimal(e.animal.id)}>
                         ×
                       </button>
@@ -223,7 +225,8 @@ export function Compare() {
                       <Line
                         key={e.animal.id}
                         type="monotone"
-                        dataKey={e.animal.chip_number}
+                        dataKey={e.animal.id}
+                        name={animalLabel(e.animal)}
                         stroke={COLORS[i % COLORS.length]}
                         strokeWidth={2}
                         dot={{ r: 2 }}
@@ -247,7 +250,7 @@ export function Compare() {
                     return (
                       <tr key={`${r.a}-${r.b}`}>
                         <th>
-                          {a.animal.chip_number} ↔ {b.animal.chip_number}
+                          {animalLabel(a.animal)} ↔ {animalLabel(b.animal)}
                         </th>
                         <td>
                           <span className={`badge ${coiRiskClass(r.coefficient)}`}>{coiLabel(r.coefficient)}</span>

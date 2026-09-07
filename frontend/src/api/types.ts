@@ -91,6 +91,12 @@ export interface BreedGrowthCurveActual {
   points: DescendantGrowthPoint[];
 }
 
+export interface SiblingsGrowthCurve {
+  animal_id: string;
+  sibling_count: number;
+  points: DescendantGrowthPoint[];
+}
+
 export interface YearlyWeightStat {
   year: number;
   breed_name: string;
@@ -157,7 +163,7 @@ export interface Feed {
 
 export interface AnimalListItem {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name: string | null;
   sex: Sex;
   status: AnimalStatus;
@@ -205,7 +211,7 @@ export interface Stall {
 
 export interface Animal {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   tattoo_number: string | null;
   name: string | null;
   sex: Sex;
@@ -231,6 +237,14 @@ export interface Animal {
   feed: Feed | null;
   cage_box_label: string | null;
   inbreeding_coefficient: number | null;
+  mother: ParentSummary | null;
+  father: ParentSummary | null;
+}
+
+export interface ParentSummary {
+  id: string;
+  chip_number: string | null;
+  name: string | null;
 }
 
 export interface LitterCreate {
@@ -318,7 +332,7 @@ export interface FeedingPlan {
 
 export interface PedigreeNode {
   id: string;
-  chip_number: string;
+  chip_number: string | null;
   name: string | null;
   sex: Sex;
   breed_name: string | null;
@@ -405,13 +419,6 @@ export interface MatingSuggestion {
   reasons: string[];
 }
 
-export interface AttentionItem {
-  animal_id: string;
-  chip_number: string;
-  name: string | null;
-  reason: string;
-}
-
 export interface User {
   id: string;
   username: string;
@@ -465,5 +472,4 @@ export interface DashboardData {
   free_box_capacity: number;
   recent_weight_entries: WeightEntry[];
   recent_evaluations: Evaluation[];
-  attention_items: AttentionItem[];
 }

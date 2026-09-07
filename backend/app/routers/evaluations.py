@@ -72,6 +72,29 @@ def add_evaluation(
     return evaluation
 
 
+@router.patch("/{evaluation_id}", response_model=schemas.EvaluationOut)
+def update_evaluation(
+    animal_id: uuid.UUID,
+    evaluation_id: uuid.UUID,
+    payload: schemas.EvaluationCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    _get_animal_or_404(db, animal_id, current_user.tenant_id)
+    evaluation = db.get(models.Evaluation, evaluation_id)
+    if not evaluation or evaluation.animal_id != animal_id:
+        raise HTTPException(status_code=404, detail="Bewertung nicht gefunden")
+
+    data = payload.model_dump(exclude={"scores"})
+    for key, value in data.items():
+        setattr(evaluation, key, value)
+    evaluation.scores = [models.EvaluationScore(**s.model_dump()) for s in payload.scores]
+
+    db.commit()
+    db.refresh(evaluation)
+    return evaluation
+
+
 @router.delete("/{evaluation_id}", status_code=204)
 def delete_evaluation(
     animal_id: uuid.UUID,

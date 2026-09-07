@@ -32,6 +32,7 @@ import type {
   Relatedness,
   ScanResult,
   Sex,
+  SiblingsGrowthCurve,
   Stall,
   StallPage,
   StrengthsWeaknesses,
@@ -95,7 +96,10 @@ export const api = {
       }),
     growthCurve: (id: string, sex?: Sex) =>
       request<GrowthCurve>(`/api/breeds/${id}/growth-curve${sex ? `?sex=${sex}` : ""}`),
-    growthCurveActual: (id: string) => request<BreedGrowthCurveActual>(`/api/breeds/${id}/growth-curve-actual`),
+    growthCurveActual: (id: string, colorVariant?: string | null) =>
+      request<BreedGrowthCurveActual>(
+        `/api/breeds/${id}/growth-curve-actual${colorVariant ? `?color_variant=${encodeURIComponent(colorVariant)}` : ""}`,
+      ),
     replaceGrowthCurve: (id: string, points: BreedGrowthPoint[]) =>
       request<GrowthCurve>(`/api/breeds/${id}/growth-curve`, { method: "PUT", body: JSON.stringify(points) }),
   },
@@ -173,6 +177,7 @@ export const api = {
       request<PairingCheck>(`/api/animals/pairing-check?mother_id=${motherId}&father_id=${fatherId}`),
     growthPlan: (id: string) => request<GrowthStatus>(`/api/animals/${id}/growth-plan`),
     descendantsGrowth: (id: string) => request<DescendantsGrowth>(`/api/animals/${id}/descendants-growth`),
+    siblingsGrowthCurve: (id: string) => request<SiblingsGrowthCurve>(`/api/animals/${id}/siblings-growth-curve`),
     offspringScores: (id: string) => request<OffspringScores>(`/api/animals/${id}/offspring-scores`),
     strengthsWeaknesses: (id: string) => request<StrengthsWeaknesses>(`/api/animals/${id}/strengths-weaknesses`),
     feedPlanYear: (id: string) => request<FeedPlanYear>(`/api/animals/${id}/feed-plan-year`),
@@ -233,6 +238,11 @@ export const api = {
     create: (animalId: string, data: Record<string, unknown>) =>
       request<Evaluation>(`/api/animals/${animalId}/evaluations`, {
         method: "POST",
+        body: JSON.stringify(data),
+      }),
+    update: (animalId: string, evaluationId: string, data: Record<string, unknown>) =>
+      request<Evaluation>(`/api/animals/${animalId}/evaluations/${evaluationId}`, {
+        method: "PATCH",
         body: JSON.stringify(data),
       }),
     remove: (animalId: string, evaluationId: string) =>
