@@ -807,6 +807,12 @@ th {
   background: var(--color-primary-soft);
 }
 
+.cage-box.search-match {
+  border-color: var(--color-warning);
+  background: var(--color-warning-soft);
+  box-shadow: 0 0 0 2px var(--color-warning);
+}
+
 .cage-box .box-label {
   font-size: 0.72rem;
   font-weight: 700;

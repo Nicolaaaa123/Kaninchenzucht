@@ -14,6 +14,8 @@ export function StallPlan() {
   const [newPageLabel, setNewPageLabel] = useState("");
   const [showPageForm, setShowPageForm] = useState(false);
 
+  const [assignSearch, setAssignSearch] = useState("");
+
   const [label, setLabel] = useState("");
   const [rows, setRows] = useState(3);
   const [columns, setColumns] = useState(2);
@@ -104,6 +106,10 @@ export function StallPlan() {
   }
 
   const freeAnimals = unassigned.data ?? [];
+  const searchNeedle = assignSearch.trim().toLowerCase();
+  const filteredFreeAnimals = searchNeedle
+    ? freeAnimals.filter((a) => animalLabel(a).toLowerCase().includes(searchNeedle))
+    : freeAnimals;
   const visibleStalls = (stalls.data ?? []).filter((s) => {
     if (activePageId === "all") return true;
     if (activePageId === "none") return !s.page_id;
@@ -117,6 +123,24 @@ export function StallPlan() {
         <Link className="btn secondary" to="/stallplan/etiketten">
           QR-Etiketten nach Stall drucken
         </Link>
+      </div>
+
+      <div className="field" style={{ marginBottom: 16 }}>
+        <label htmlFor="assign-search">Tier suchen</label>
+        <input
+          id="assign-search"
+          type="text"
+          placeholder="Chip-Nummer oder Name…"
+          value={assignSearch}
+          onChange={(e) => setAssignSearch(e.target.value)}
+        />
+        {searchNeedle && (
+          <span className="hint">
+            Box mit passendem Tier ist unten gelb markiert. Die "Tier zuordnen"-Auswahl in freien
+            Boxen zeigt nur noch die {filteredFreeAnimals.length} passenden von {freeAnimals.length}{" "}
+            freien Tieren.
+          </span>
+        )}
       </div>
 
       <div className="page-tabs">
@@ -244,9 +268,11 @@ export function StallPlan() {
               {stall.boxes.map((box) => {
                 const occupants = box.occupants;
                 const hasSpace = occupants.length < box.capacity;
+                const isSearchMatch =
+                  searchNeedle && occupants.some((o) => animalLabel(o).toLowerCase().includes(searchNeedle));
                 return (
                   <div
-                    className={`cage-box ${occupants.length > 0 ? "occupied" : ""}`}
+                    className={`cage-box ${occupants.length > 0 ? "occupied" : ""} ${isSearchMatch ? "search-match" : ""}`}
                     key={box.id}
                     style={{ gridRow: box.row_index + 1, gridColumn: box.col_index + 1 }}
                   >
@@ -295,7 +321,7 @@ export function StallPlan() {
                         style={{ fontSize: "0.78rem", padding: "5px 6px" }}
                       >
                         <option value="">Tier zuordnen…</option>
-                        {freeAnimals
+                        {filteredFreeAnimals
                           .filter((a) => !occupants.some((o) => o.id === a.id))
                           .map((a) => (
                             <option key={a.id} value={a.id}>
