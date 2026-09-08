@@ -807,10 +807,9 @@ th {
   background: var(--color-primary-soft);
 }
 
-.cage-box.search-match {
-  border-color: var(--color-warning);
-  background: var(--color-warning-soft);
-  box-shadow: 0 0 0 2px var(--color-warning);
+.cage-box-assign input {
+  font-size: 0.78rem;
+  padding: 5px 6px;
 }
 
 .cage-box .box-label {
