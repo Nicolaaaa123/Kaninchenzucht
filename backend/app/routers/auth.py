@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
 from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
@@ -116,3 +118,25 @@ def create_user(payload: schemas.CreateUserRequest, admin: models.User = Depends
 @router.get("/users", response_model=list[schemas.UserOut])
 def list_users(admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
     return db.execute(select(models.User).order_by(models.User.username)).scalars().all()
+
+
+@router.post("/users/{user_id}/reset-password")
+def reset_user_password(
+    user_id: uuid.UUID,
+    payload: schemas.AdminPasswordReset,
+    admin: models.User = Depends(require_admin),
+    db: Session = Depends(get_db),
+):
+    """Setzt das Passwort eines beliebigen Logins neu — nur für Administratoren.
+    Zeigt nie das alte Passwort an (technisch unmöglich, nur der Hash ist
+    gespeichert), vergibt stattdessen ein neues. Meldet dabei alle laufenden
+    Sitzungen des Logins ab, zur Sicherheit."""
+    if not payload.new_password or len(payload.new_password) < 1:
+        raise HTTPException(status_code=422, detail="Neues Passwort erforderlich")
+    user = db.get(models.User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Login nicht gefunden")
+    user.password_hash = hash_password(payload.new_password)
+    db.execute(delete(models.UserSession).where(models.UserSession.user_id == user_id))
+    db.commit()
+    return {"ok": True}

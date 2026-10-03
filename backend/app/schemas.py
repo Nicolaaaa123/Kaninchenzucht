@@ -33,6 +33,10 @@ class MergeRequest(BaseModel):
     code: str
 
 
+class AdminPasswordReset(BaseModel):
+    new_password: str
+
+
 # ---- Breed scoring positions ----
 class BreedScoringPositionBase(BaseModel):
     position_number: int

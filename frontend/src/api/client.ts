@@ -80,6 +80,11 @@ export const api = {
     listUsers: () => request<User[]>("/api/auth/users"),
     createUser: (data: { username: string; password: string; display_name?: string | null; is_admin?: boolean }) =>
       request<User>("/api/auth/users", { method: "POST", body: JSON.stringify(data) }),
+    resetPassword: (userId: string, newPassword: string) =>
+      request<{ ok: boolean }>(`/api/auth/users/${userId}/reset-password`, {
+        method: "POST",
+        body: JSON.stringify({ new_password: newPassword }),
+      }),
   },
 
   breeds: {

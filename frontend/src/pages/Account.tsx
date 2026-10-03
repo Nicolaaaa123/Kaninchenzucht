@@ -22,6 +22,12 @@ export function Account() {
   );
   const [creating, setCreating] = useState(false);
 
+  const [resettingUserId, setResettingUserId] = useState<string | null>(null);
+  const [resetPasswordValue, setResetPasswordValue] = useState("");
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [resetSuccessUsername, setResetSuccessUsername] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+
   if (!user) return null;
 
   async function handleMerge(e: React.FormEvent) {
@@ -63,6 +69,31 @@ export function Account() {
       setCreateError((err as Error).message);
     } finally {
       setCreating(false);
+    }
+  }
+
+  function startReset(userId: string) {
+    setResettingUserId(userId);
+    setResetPasswordValue("");
+    setResetError(null);
+    setResetSuccessUsername(null);
+  }
+
+  async function handleResetPassword(userId: string, username: string) {
+    if (!resetPasswordValue) {
+      setResetError("Neues Passwort darf nicht leer sein.");
+      return;
+    }
+    setResetting(true);
+    setResetError(null);
+    try {
+      await api.auth.resetPassword(userId, resetPasswordValue);
+      setResettingUserId(null);
+      setResetSuccessUsername(username);
+    } catch (err) {
+      setResetError((err as Error).message);
+    } finally {
+      setResetting(false);
     }
   }
 
@@ -199,13 +230,62 @@ export function Account() {
           </form>
 
           <h3 style={{ marginTop: 20 }}>Bestehende Logins</h3>
+          {resetSuccessUsername && (
+            <div
+              className="card section"
+              style={{ background: "var(--color-success-soft)", color: "var(--color-success)", marginBottom: 12 }}
+            >
+              Passwort für "{resetSuccessUsername}" wurde geändert. Die Person wurde automatisch überall
+              abgemeldet und muss sich mit dem neuen Passwort neu anmelden.
+            </div>
+          )}
           <div className="list">
             {users.data?.map((u) => (
-              <div className="list-item" key={u.id}>
-                <span>
-                  {u.username} {u.display_name ? `· ${u.display_name}` : ""} {u.is_admin ? "· Admin" : ""}
-                </span>
-                <code>{u.invite_code}</code>
+              <div key={u.id} className="card" style={{ marginBottom: 8, padding: "10px 14px" }}>
+                <div className="list-item" style={{ padding: 0 }}>
+                  <span>
+                    {u.username} {u.display_name ? `· ${u.display_name}` : ""} {u.is_admin ? "· Admin" : ""}
+                  </span>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <code>{u.invite_code}</code>
+                    <button
+                      type="button"
+                      className="btn secondary small"
+                      onClick={() => (resettingUserId === u.id ? setResettingUserId(null) : startReset(u.id))}
+                    >
+                      Passwort setzen
+                    </button>
+                  </div>
+                </div>
+                {resettingUserId === u.id && (
+                  <div className="toolbar" style={{ marginTop: 10, marginBottom: 0 }}>
+                    {resetError && <div className="error-banner">{resetError}</div>}
+                    <input
+                      type="text"
+                      placeholder="Neues Passwort"
+                      value={resetPasswordValue}
+                      onChange={(e) => setResetPasswordValue(e.target.value)}
+                      style={{ flex: 1 }}
+                      autoFocus
+                    />
+                    <button
+                      className="btn"
+                      type="button"
+                      disabled={resetting}
+                      onClick={() => handleResetPassword(u.id, u.username)}
+                    >
+                      {resetting ? "Speichere…" : "Speichern"}
+                    </button>
+                    <button
+                      className="btn secondary"
+                      type="button"
+                      onClick={() => setResettingUserId(null)}
+                      disabled={resetting}
+                    >
+                      Abbrechen
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
