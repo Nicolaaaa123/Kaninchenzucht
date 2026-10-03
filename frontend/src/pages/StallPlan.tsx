@@ -244,6 +244,7 @@ export function StallPlan() {
               {stall.boxes.map((box) => {
                 const occupants = box.occupants;
                 const hasSpace = occupants.length < box.capacity;
+                const assignableAnimals = freeAnimals.filter((a) => !occupants.some((o) => o.id === a.id));
                 return (
                   <div
                     className={`cage-box ${occupants.length > 0 ? "occupied" : ""}`}
@@ -289,20 +290,24 @@ export function StallPlan() {
                       )}
                     </div>
                     {hasSpace && (
-                      <select
-                        value=""
-                        onChange={(e) => handleAssign(box.id, e.target.value)}
-                        style={{ fontSize: "0.78rem", padding: "5px 6px" }}
-                      >
-                        <option value="">Tier zuordnen…</option>
-                        {freeAnimals
-                          .filter((a) => !occupants.some((o) => o.id === a.id))
-                          .map((a) => (
-                            <option key={a.id} value={a.id}>
-                              {animalLabel(a)}
-                            </option>
+                      <div className="cage-box-assign">
+                        <input
+                          key={`${box.id}-${occupants.length}`}
+                          type="text"
+                          list={`assign-${box.id}`}
+                          placeholder="Tier zuordnen…"
+                          autoComplete="off"
+                          onChange={(e) => {
+                            const match = assignableAnimals.find((a) => animalLabel(a) === e.target.value);
+                            if (match) handleAssign(box.id, match.id);
+                          }}
+                        />
+                        <datalist id={`assign-${box.id}`}>
+                          {assignableAnimals.map((a) => (
+                            <option key={a.id} value={animalLabel(a)} />
                           ))}
-                      </select>
+                        </datalist>
+                      </div>
                     )}
                   </div>
                 );

@@ -807,6 +807,11 @@ th {
   background: var(--color-primary-soft);
 }
 
+.cage-box-assign input {
+  font-size: 0.78rem;
+  padding: 5px 6px;
+}
+
 .cage-box .box-label {
   font-size: 0.72rem;
   font-weight: 700;
