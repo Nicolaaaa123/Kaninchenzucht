@@ -46,4 +46,11 @@ export function pointOptionsForMaxPoints(maxPoints: number): { value: number; la
   return options;
 }
 
+/** Praktisch erreichbarer Höchstwert einer Position: bei 20er-Positionen sind
+ * maximal 19,5 Punkte möglich ("Ideal" = 20 wird nicht vergeben), bei den
+ * übrigen gilt der Positionswert selbst (z.B. 10). */
+export function effectiveMaxPoints(maxPoints: number): number {
+  return maxPoints === 20 ? 19.5 : maxPoints;
+}
+
 export const EXCLUSION_THRESHOLD = 90.0;

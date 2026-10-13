@@ -577,6 +577,7 @@ class ScanResultOut(BaseModel):
 # ---- Stärken/Schwächen der Nachkommen ----
 class OffspringScoreCategory(BaseModel):
     category_label: str
+    max_points: int
     average_points: float
     average_pct: float | None
     sample_count: int

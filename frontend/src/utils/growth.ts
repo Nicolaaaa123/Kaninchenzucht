@@ -87,6 +87,12 @@ export function growthStatusClass(status: string | null): string {
   return "";
 }
 
+/** Tooltip für das Min–Max-Band (Array-Wert) und die Durchschnittslinie. */
+export function growthTooltipFormatter(value: unknown): string {
+  if (Array.isArray(value)) return `${value[0]}–${value[1]} g`;
+  return `${String(value)} g`;
+}
+
 export function descendantsChartData(points: DescendantGrowthPoint[]) {
   return points.map((p) => ({
     age: p.age_weeks,

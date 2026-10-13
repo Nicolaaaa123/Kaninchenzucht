@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
-import { descendantsChartData } from "../utils/growth";
+import { descendantsChartData, growthTooltipFormatter } from "../utils/growth";
 import { animalLabel } from "../utils/animalLabel";
 
 const SEX_LABELS: Record<string, string> = {
@@ -276,9 +276,8 @@ function LitterStatsPanel({ litterName }: { litterName: string }) {
                 label={{ value: "Wochen", position: "insideBottom", offset: -2, fontSize: 11 }}
               />
               <YAxis tick={{ fontSize: 11 }} width={50} />
-              <Tooltip />
-              <Area type="monotone" dataKey="max" stroke="none" fill="#4338ca" fillOpacity={0.1} />
-              <Area type="monotone" dataKey="min" stroke="none" fill="#ffffff" fillOpacity={1} />
+              <Tooltip formatter={growthTooltipFormatter} />
+              <Area type="monotone" dataKey="range" name="Min–Max" stroke="none" fill="#4338ca" fillOpacity={0.15} />
               <Line type="monotone" dataKey="mean" name="Durchschnitt" stroke="#4338ca" strokeWidth={2} dot={{ r: 2 }} />
             </ComposedChart>
           </ResponsiveContainer>

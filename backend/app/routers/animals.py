@@ -671,9 +671,11 @@ def get_offspring_scores(
     categories = []
     for label, values in buckets.items():
         pct_values = [p / m * 100 for p, m in values if m]
+        max_values = [m for _, m in values if m]
         categories.append(
             schemas.OffspringScoreCategory(
                 category_label=label,
+                max_points=max(set(max_values), key=max_values.count) if max_values else 0,
                 average_points=round(statistics.mean(p for p, _ in values), 2),
                 average_pct=round(statistics.mean(pct_values), 1) if pct_values else None,
                 sample_count=len(values),

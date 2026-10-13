@@ -397,6 +397,7 @@ export interface Relatedness {
 
 export interface OffspringScoreCategory {
   category_label: string;
+  max_points: number;
   average_points: number;
   average_pct: number | null;
   sample_count: number;

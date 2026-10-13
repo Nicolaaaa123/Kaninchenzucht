@@ -19,12 +19,18 @@ import {
 import { api, BASE_URL } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import type { Evaluation, EvaluationScore, FeedingPhase } from "../api/types";
-import { EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
+import { effectiveMaxPoints, EXCLUSION_THRESHOLD, pointOptionsForMaxPoints } from "../utils/scoring";
 import { AnimalCombobox } from "../components/AnimalCombobox";
 import { ScaleIcon } from "../components/Icons";
 import { PedigreeTree } from "../components/PedigreeTree";
 import { coiLabel, coiRiskClass } from "../utils/inbreeding";
-import { buildWeightChartData, descendantsChartData, GROWTH_STATUS_LABELS, growthStatusClass } from "../utils/growth";
+import {
+  buildWeightChartData,
+  descendantsChartData,
+  GROWTH_STATUS_LABELS,
+  growthStatusClass,
+  growthTooltipFormatter,
+} from "../utils/growth";
 import { niceAxisBounds } from "../utils/chartAxis";
 import { animalLabel } from "../utils/animalLabel";
 
@@ -101,16 +107,30 @@ export function AnimalDetail() {
   const [showSiblingsCurve, setShowSiblingsCurve] = useState(true);
   const descendantsGrowth = useAsync(() => api.animals.descendantsGrowth(id), [id]);
   const offspringScores = useAsync(() => api.animals.offspringScores(id), [id]);
+  // Radar-Achsen haben unterschiedliche Höchstwerte (19,5 bei 20er-, 10 bei
+  // 10er-Positionen) -- für die Form wird daher je Position relativ zum
+  // eigenen Höchstwert gezeichnet, angezeigt werden aber nur Punkte.
+  const offspringRadarData = useMemo(
+    () =>
+      (offspringScores.data?.categories ?? []).map((c) => {
+        const maxEff = effectiveMaxPoints(c.max_points);
+        return {
+          category_label: c.category_label,
+          points: c.average_points,
+          maxEff,
+          relative: maxEff > 0 ? Math.min(100, (c.average_points / maxEff) * 100) : 0,
+        };
+      }),
+    [offspringScores.data],
+  );
   const { domain: offspringRadarDomain, ticks: offspringRadarTicks } = useMemo(() => {
-    const values = (offspringScores.data?.categories.map((c) => c.average_pct) ?? []).filter(
-      (v): v is number => v != null,
-    );
+    const values = offspringRadarData.map((d) => d.relative);
     if (values.length === 0) return niceAxisBounds(0, 100);
     const min = Math.min(...values);
     const max = Math.max(...values);
     const padding = Math.max((max - min) * 0.1, 0.5);
     return niceAxisBounds(Math.max(0, min - padding), Math.min(100, max + padding));
-  }, [offspringScores.data]);
+  }, [offspringRadarData]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),
     [id, evaluations.data?.length],
@@ -1143,29 +1163,52 @@ export function AnimalDetail() {
         {offspringScores.data && offspringScores.data.categories.length >= 3 && (
           <div style={{ marginBottom: 20 }}>
             <h3>
-              Stärken/Schwächen der Nachkommen ({offspringScores.data.child_count} Kinder,{" "}
+              Stärken/Schwächen der Nachkommen ({offspringScores.data.child_count} Jungtiere,{" "}
               {offspringScores.data.evaluation_count} Bewertungen)
             </h3>
             <div style={{ height: 260 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={offspringScores.data.categories}>
+                <RadarChart data={offspringRadarData}>
                   <PolarGrid stroke="var(--color-border)" />
                   <PolarAngleAxis dataKey="category_label" tick={{ fontSize: 10 }} />
-                  <PolarRadiusAxis domain={offspringRadarDomain} ticks={offspringRadarTicks} tick={{ fontSize: 9 }} />
+                  <PolarRadiusAxis
+                    domain={offspringRadarDomain}
+                    ticks={offspringRadarTicks}
+                    tick={false}
+                    axisLine={false}
+                  />
                   <Radar
-                    name="Ø Prozent vom Höchstwert"
-                    dataKey="average_pct"
+                    name="Ø Punkte"
+                    dataKey="relative"
                     stroke="#4338ca"
                     fill="#4338ca"
                     fillOpacity={0.25}
                   />
-                  <Tooltip />
+                  <Tooltip
+                    formatter={(_value: unknown, _name: unknown, item: { payload?: { points: number; maxEff: number } }) => [
+                      item.payload ? `${item.payload.points} / ${item.payload.maxEff} Punkte` : "",
+                      "Ø",
+                    ]}
+                  />
                 </RadarChart>
               </ResponsiveContainer>
             </div>
+            <table style={{ marginTop: 8 }}>
+              <tbody>
+                {offspringRadarData.map((d) => (
+                  <tr key={d.category_label}>
+                    <th>{d.category_label}</th>
+                    <td>
+                      Ø {d.points} / {d.maxEff} Punkte
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             <p className="hint">
-              Durchschnitt je Bewertungsposition über alle Bewertungen der direkten Nachkommen, als
-              Prozent vom jeweiligen Höchstwert.
+              Durchschnittliche Punkte je Bewertungsposition über alle Bewertungen der direkten
+              Jungtiere (Höchstwert: 19,5 bei 20er-Positionen, 10 bei 10er-Positionen). Das
+              Diagramm ist vergrössert dargestellt, damit Unterschiede sichtbar werden.
             </p>
           </div>
         )}
@@ -1179,9 +1222,8 @@ export function AnimalDetail() {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis dataKey="age" tick={{ fontSize: 11 }} label={{ value: "Wochen", position: "insideBottom", offset: -2, fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} width={50} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="max" stroke="none" fill="#4338ca" fillOpacity={0.1} />
-                  <Area type="monotone" dataKey="min" stroke="none" fill="#ffffff" fillOpacity={1} />
+                  <Tooltip formatter={growthTooltipFormatter} />
+                  <Area type="monotone" dataKey="range" name="Min–Max" stroke="none" fill="#4338ca" fillOpacity={0.15} />
                   <Line type="monotone" dataKey="mean" name="Durchschnitt" stroke="#4338ca" strokeWidth={2} dot={{ r: 2 }} />
                 </ComposedChart>
               </ResponsiveContainer>
