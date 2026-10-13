@@ -10,7 +10,7 @@ from app import models
 from app.database import get_db
 
 SESSION_COOKIE_NAME = "session_token"
-SESSION_TTL_DAYS = 30
+SESSION_TTL_DAYS = 365
 
 
 def hash_password(password: str) -> str:
