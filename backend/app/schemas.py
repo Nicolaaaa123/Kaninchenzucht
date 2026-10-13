@@ -27,6 +27,8 @@ class CreateUserRequest(BaseModel):
     password: str
     display_name: str | None = None
     is_admin: bool = False
+    # True: das neue Login arbeitet direkt im Bestand des anlegenden Admins
+    join_my_tenant: bool = False
 
 
 class MergeRequest(BaseModel):

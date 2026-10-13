@@ -79,7 +79,13 @@ export const api = {
     me: () => request<User>("/api/auth/me"),
     merge: (code: string) => request<{ ok: boolean }>("/api/auth/merge", { method: "POST", body: JSON.stringify({ code }) }),
     listUsers: () => request<User[]>("/api/auth/users"),
-    createUser: (data: { username: string; password: string; display_name?: string | null; is_admin?: boolean }) =>
+    createUser: (data: {
+      username: string;
+      password: string;
+      display_name?: string | null;
+      is_admin?: boolean;
+      join_my_tenant?: boolean;
+    }) =>
       request<User>("/api/auth/users", { method: "POST", body: JSON.stringify(data) }),
     resetPassword: (userId: string, newPassword: string) =>
       request<{ ok: boolean }>(`/api/auth/users/${userId}/reset-password`, {

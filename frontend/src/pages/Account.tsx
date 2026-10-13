@@ -16,6 +16,7 @@ export function Account() {
   const [newPassword, setNewPassword] = useState("");
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newIsAdmin, setNewIsAdmin] = useState(false);
+  const [newJoinMyTenant, setNewJoinMyTenant] = useState(true);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<{ username: string; password: string; invite_code: string } | null>(
     null,
@@ -58,6 +59,7 @@ export function Account() {
         password: newPassword,
         display_name: newDisplayName.trim() || null,
         is_admin: newIsAdmin,
+        join_my_tenant: newJoinMyTenant,
       });
       setCreatedUser({ username: created.username, password: newPassword, invite_code: created.invite_code });
       setNewUsername("");
@@ -167,8 +169,8 @@ export function Account() {
         <div className="card section">
           <h2>Neues Login anlegen</h2>
           <p className="hint" style={{ marginBottom: 12 }}>
-            Legt ein neues Login mit einem eigenen, leeren Bestand an — die Person kann sich danach
-            über den Einlade-Code mit eurem Bestand zusammenschliessen.
+            Legt ein neues Login an. Mit dem Haken unten sieht die Person direkt euren gemeinsamen
+            Bestand (empfohlen, z.B. für Familie). Ohne Haken bekommt sie einen eigenen, leeren Bestand.
           </p>
           {createError && <div className="error-banner">{createError}</div>}
           {createdUser && (
@@ -221,6 +223,16 @@ export function Account() {
                     style={{ width: "auto" }}
                   />
                   Administrator
+                </label>
+                <label htmlFor="new-join" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <input
+                    id="new-join"
+                    type="checkbox"
+                    checked={newJoinMyTenant}
+                    onChange={(e) => setNewJoinMyTenant(e.target.checked)}
+                    style={{ width: "auto" }}
+                  />
+                  Im selben Bestand wie ich
                 </label>
               </div>
             </div>

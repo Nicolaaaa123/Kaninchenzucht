@@ -88,18 +88,24 @@ def merge_tenant(payload: schemas.MergeRequest, user: models.User = Depends(get_
 
 @router.post("/users", response_model=schemas.UserOut, status_code=201)
 def create_user(payload: schemas.CreateUserRequest, admin: models.User = Depends(require_admin), db: Session = Depends(get_db)):
-    """Legt ein neues Login mit einem frischen, eigenen (leeren) Zuchtbetrieb
-    an — nur für Administratoren. Der Zuchtbetrieb lässt sich danach über den
-    Einlade-Code mit einem bestehenden zusammenführen."""
+    """Legt ein neues Login an — nur für Administratoren. Standardmässig mit einem
+    frischen, eigenen (leeren) Zuchtbetrieb, der sich danach über den
+    Einlade-Code zusammenführen lässt. Mit join_my_tenant arbeitet das Login
+    direkt im Bestand des Admins (empfohlen für Familie/Helfer: kein späteres
+    Zusammenführen nötig, das bei doppelten Rassennamen scheitern kann)."""
     username = payload.username.strip()
     if not username or not payload.password:
         raise HTTPException(status_code=422, detail="Benutzername und Passwort erforderlich")
     if get_username_taken(db, username):
         raise HTTPException(status_code=422, detail="Benutzername bereits vergeben")
 
-    tenant = models.Tenant(name=payload.display_name or username)
-    db.add(tenant)
-    db.flush()
+    if payload.join_my_tenant:
+        tenant_id = admin.tenant_id
+    else:
+        tenant = models.Tenant(name=payload.display_name or username)
+        db.add(tenant)
+        db.flush()
+        tenant_id = tenant.id
 
     user = models.User(
         username=username,
@@ -107,7 +113,7 @@ def create_user(payload: schemas.CreateUserRequest, admin: models.User = Depends
         display_name=payload.display_name.strip() if payload.display_name else None,
         invite_code=generate_invite_code(),
         is_admin=payload.is_admin,
-        tenant_id=tenant.id,
+        tenant_id=tenant_id,
     )
     db.add(user)
     db.commit()
