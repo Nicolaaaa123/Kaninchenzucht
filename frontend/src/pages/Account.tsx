@@ -16,7 +16,7 @@ export function Account() {
   const [newPassword, setNewPassword] = useState("");
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newIsAdmin, setNewIsAdmin] = useState(false);
-  const [newJoinMyTenant, setNewJoinMyTenant] = useState(true);
+  const [newJoinMyTenant, setNewJoinMyTenant] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<{ username: string; password: string; invite_code: string } | null>(
     null,
@@ -169,8 +169,9 @@ export function Account() {
         <div className="card section">
           <h2>Neues Login anlegen</h2>
           <p className="hint" style={{ marginBottom: 12 }}>
-            Legt ein neues Login an. Mit dem Haken unten sieht die Person direkt euren gemeinsamen
-            Bestand (empfohlen, z.B. für Familie). Ohne Haken bekommt sie einen eigenen, leeren Bestand.
+            Legt ein neues Login an. Ohne Haken bekommt die Person einen eigenen, leeren Bestand (mit den
+            Standard-Rassen), den nur sie sieht. Mit dem Haken "Im selben Bestand wie ich" arbeitet sie direkt
+            in deinem Bestand.
           </p>
           {createError && <div className="error-banner">{createError}</div>}
           {createdUser && (

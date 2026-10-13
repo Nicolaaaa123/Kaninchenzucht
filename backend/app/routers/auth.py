@@ -18,6 +18,7 @@ from app.auth import (
 )
 from app.config import settings
 from app.database import get_db
+from app.seed_breeds import seed_tenant_breeds
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -105,6 +106,9 @@ def create_user(payload: schemas.CreateUserRequest, admin: models.User = Depends
         tenant = models.Tenant(name=payload.display_name or username)
         db.add(tenant)
         db.flush()
+        # Standard-Rassen sofort anlegen -- sonst hätte der neue Bestand bis zum
+        # nächsten Neustart des Servers keine Rassen
+        seed_tenant_breeds(db, tenant)
         tenant_id = tenant.id
 
     user = models.User(
