@@ -298,6 +298,7 @@ export interface Evaluation {
   exhibitor_number: string | null;
   exhibitor_name: string | null;
   exhibitor_address: string | null;
+  expert_name: string | null;
   total_score: number | null;
   weight_grams: number | null;
   photo_path: string | null;
@@ -473,4 +474,35 @@ export interface DashboardData {
   free_box_capacity: number;
   recent_weight_entries: WeightEntry[];
   recent_evaluations: Evaluation[];
+}
+
+export interface ExpertPositionAvg {
+  position_number: number;
+  category_label: string;
+  avg_points: number;
+  max_points: number;
+}
+
+export interface ExpertEvaluationRef {
+  evaluation_id: string;
+  animal_id: string;
+  animal_chip_number: string | null;
+  animal_name: string | null;
+  evaluated_on: string;
+  show_name: string | null;
+  total_score: number | null;
+}
+
+export interface ExpertStat {
+  expert_name: string;
+  evaluation_count: number;
+  animal_count: number;
+  avg_total_score: number | null;
+  positions: ExpertPositionAvg[];
+  evaluations: ExpertEvaluationRef[];
+}
+
+export interface ExpertsOverview {
+  experts: ExpertStat[];
+  without_expert_count: number;
 }

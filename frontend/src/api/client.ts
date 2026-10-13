@@ -38,6 +38,7 @@ import type {
   StrengthsWeaknesses,
   WeightEntry,
   YearlyEvaluationStat,
+  ExpertsOverview,
   YearlyWeightStat,
 } from "./types";
 
@@ -114,6 +115,7 @@ export const api = {
       request<YearlyWeightStat[]>(`/api/stats/yearly-weights${breedId ? `?breed_id=${breedId}` : ""}`),
     yearlyEvaluations: (breedId?: string) =>
       request<YearlyEvaluationStat[]>(`/api/stats/yearly-evaluations${breedId ? `?breed_id=${breedId}` : ""}`),
+    experts: () => request<ExpertsOverview>("/api/stats/experts"),
   },
 
   feeds: {

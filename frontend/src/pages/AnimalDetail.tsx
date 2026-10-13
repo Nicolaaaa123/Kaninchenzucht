@@ -33,6 +33,7 @@ import {
 } from "../utils/growth";
 import { niceAxisBounds } from "../utils/chartAxis";
 import { animalLabel } from "../utils/animalLabel";
+import { SWISS_EXPERTS } from "../data/experts";
 
 const STATUS_LABELS: Record<string, string> = {
   active: "Aktiv",
@@ -182,6 +183,7 @@ export function AnimalDetail() {
   const [showEvalForm, setShowEvalForm] = useState(false);
   const [evalDate, setEvalDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [showName, setShowName] = useState("");
+  const [expertName, setExpertName] = useState("");
   const [scores, setScores] = useState<EvaluationScore[]>([]);
   const [evalWeight, setEvalWeight] = useState("");
   const [evalError, setEvalError] = useState<string | null>(null);
@@ -351,6 +353,7 @@ export function AnimalDetail() {
     const data = {
       evaluated_on: evalDate,
       show_name: showName.trim() || null,
+      expert_name: expertName.trim() || null,
       total_score: scoreTotal,
       weight_grams: evalWeight ? Number(evalWeight) : null,
       scores,
@@ -366,6 +369,7 @@ export function AnimalDetail() {
       setEditingEvalId(null);
       setEditingEvalExtra(null);
       setShowName("");
+      setExpertName("");
       setEvalWeight("");
       evaluations.reload();
     } catch (err) {
@@ -385,6 +389,7 @@ export function AnimalDetail() {
     });
     setEvalDate(ev.evaluated_on);
     setShowName(ev.show_name ?? "");
+    setExpertName(ev.expert_name ?? "");
     setEvalWeight(ev.weight_grams ? String(ev.weight_grams) : "");
     setScores(ev.scores.map((s) => ({ position_number: s.position_number, category_label: s.category_label, max_points: s.max_points, points: s.points })));
     setEvalError(null);
@@ -396,6 +401,7 @@ export function AnimalDetail() {
     setEditingEvalId(null);
     setEditingEvalExtra(null);
     setShowName("");
+    setExpertName("");
     setEvalWeight("");
     if (a.breed) {
       setScores(
@@ -1042,6 +1048,24 @@ export function AnimalDetail() {
                 <input id="e-show" type="text" value={showName} onChange={(e) => setShowName(e.target.value)} />
               </div>
               <div className="field">
+                <label htmlFor="e-expert">Experte</label>
+                <input
+                  id="e-expert"
+                  type="text"
+                  list="expert-options"
+                  autoComplete="off"
+                  placeholder="Name wählen oder eintippen"
+                  value={expertName}
+                  onChange={(e) => setExpertName(e.target.value)}
+                />
+                <datalist id="expert-options">
+                  {SWISS_EXPERTS.map((x) => (
+                    <option key={x.name} value={x.name} label={x.place} />
+                  ))}
+                </datalist>
+                <span className="hint">Bei zwei Experten die Namen mit " / " trennen.</span>
+              </div>
+              <div className="field">
                 <label htmlFor="e-weight">Gewicht bei Bewertung (g)</label>
                 <input
                   id="e-weight"
@@ -1117,6 +1141,7 @@ export function AnimalDetail() {
                       <div className="title">
                         {ev.evaluated_on} {ev.show_name ? `· ${ev.show_name}` : ""}
                       </div>
+                      {ev.expert_name && <div className="hint">Experte: {ev.expert_name}</div>}
                       {ev.exhibitor_name && <div className="hint">Aussteller: {ev.exhibitor_name}</div>}
                     </div>
                     <strong style={{ fontSize: "1.3rem" }}>{ev.total_score ?? "–"}</strong>

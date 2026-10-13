@@ -324,6 +324,9 @@ class Evaluation(Base):
     exhibitor_number: Mapped[str | None] = mapped_column(String(60), nullable=True)
     exhibitor_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
     exhibitor_address: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    # Preisrichter/Experte, der die Karte ausgestellt hat; bei zwei Richtern
+    # beide Namen mit " / " getrennt.
+    expert_name: Mapped[str | None] = mapped_column(String(300), nullable=True)
     total_score: Mapped[float | None] = mapped_column(nullable=True)
     weight_grams: Mapped[int | None] = mapped_column(Integer, nullable=True)
     photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)

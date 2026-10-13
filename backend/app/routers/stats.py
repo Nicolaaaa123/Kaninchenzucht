@@ -4,7 +4,7 @@ from collections import Counter
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
 from app.auth import get_current_user
@@ -48,6 +48,78 @@ def yearly_weights(
         )
         for (year, breed_name), values in sorted(buckets.items())
     ]
+
+
+@router.get("/experts", response_model=schemas.ExpertsOverviewOut)
+def experts_overview(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Auswertung der Bewertungskarten pro Experte (Preisrichter): wie viele
+    Karten/Tiere, Durchschnittspunkte gesamt und je Position. Steht auf einer
+    Karte mit " / " mehr als ein Experte, zählt sie für jeden von ihnen."""
+    evaluations = (
+        db.execute(
+            select(models.Evaluation)
+            .options(joinedload(models.Evaluation.scores), joinedload(models.Evaluation.animal))
+            .join(models.Animal, models.Evaluation.animal_id == models.Animal.id)
+            .where(models.Animal.tenant_id == current_user.tenant_id)
+            .order_by(models.Evaluation.evaluated_on.desc())
+        )
+        .unique()
+        .scalars()
+        .all()
+    )
+
+    by_expert: dict[str, list[models.Evaluation]] = {}
+    without_expert = 0
+    for ev in evaluations:
+        names = [n.strip() for n in (ev.expert_name or "").split(" / ") if n.strip()]
+        if not names:
+            without_expert += 1
+            continue
+        for name in dict.fromkeys(names):
+            by_expert.setdefault(name, []).append(ev)
+
+    experts = []
+    for name, evs in by_expert.items():
+        totals = [e.total_score for e in evs if e.total_score is not None]
+        position_buckets: dict[tuple[int, str], list[tuple[float, int]]] = {}
+        for e in evs:
+            for s in e.scores:
+                position_buckets.setdefault((s.position_number, s.category_label), []).append((s.points, s.max_points))
+        positions = [
+            schemas.ExpertPositionAvgOut(
+                position_number=pos,
+                category_label=label,
+                avg_points=round(statistics.mean(p for p, _ in values), 2),
+                max_points=Counter(m for _, m in values).most_common(1)[0][0],
+            )
+            for (pos, label), values in sorted(position_buckets.items())
+        ]
+        experts.append(
+            schemas.ExpertStatOut(
+                expert_name=name,
+                evaluation_count=len(evs),
+                animal_count=len({e.animal_id for e in evs}),
+                avg_total_score=round(statistics.mean(totals), 1) if totals else None,
+                positions=positions,
+                evaluations=[
+                    schemas.ExpertEvaluationRefOut(
+                        evaluation_id=e.id,
+                        animal_id=e.animal_id,
+                        animal_chip_number=e.animal.chip_number,
+                        animal_name=e.animal.name,
+                        evaluated_on=e.evaluated_on,
+                        show_name=e.show_name,
+                        total_score=e.total_score,
+                    )
+                    for e in evs
+                ],
+            )
+        )
+    experts.sort(key=lambda x: (-x.evaluation_count, x.expert_name))
+    return schemas.ExpertsOverviewOut(experts=experts, without_expert_count=without_expert)
 
 
 @router.get("/yearly-evaluations", response_model=list[schemas.YearlyEvaluationStatOut])

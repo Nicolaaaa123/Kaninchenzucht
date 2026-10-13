@@ -142,9 +142,14 @@ export function Dashboard() {
         <div className="section card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
             <h2>Jahresvergleich</h2>
-            <Link className="hint" to="/statistik">
-              Alle Jahre &amp; Rassen →
-            </Link>
+            <span style={{ display: "flex", gap: 12 }}>
+              <Link className="hint" to="/statistik">
+                Alle Jahre &amp; Rassen →
+              </Link>
+              <Link className="hint" to="/experten">
+                Experten →
+              </Link>
+            </span>
           </div>
           {yearlyChartData.length > 0 ? (
             <div style={{ height: 160 }}>

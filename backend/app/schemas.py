@@ -396,6 +396,7 @@ class EvaluationBase(BaseModel):
     exhibitor_number: str | None = None
     exhibitor_name: str | None = None
     exhibitor_address: str | None = None
+    expert_name: str | None = None
     total_score: float | None = None
     weight_grams: int | None = None
     notes: str | None = None
@@ -522,6 +523,37 @@ class YearlyEvaluationStatOut(BaseModel):
     avg_points: float
     max_points: int
     sample_count: int
+
+
+class ExpertPositionAvgOut(BaseModel):
+    position_number: int
+    category_label: str
+    avg_points: float
+    max_points: int
+
+
+class ExpertEvaluationRefOut(BaseModel):
+    evaluation_id: uuid.UUID
+    animal_id: uuid.UUID
+    animal_chip_number: str | None
+    animal_name: str | None
+    evaluated_on: date
+    show_name: str | None
+    total_score: float | None
+
+
+class ExpertStatOut(BaseModel):
+    expert_name: str
+    evaluation_count: int
+    animal_count: int
+    avg_total_score: float | None
+    positions: list[ExpertPositionAvgOut]
+    evaluations: list[ExpertEvaluationRefOut]
+
+
+class ExpertsOverviewOut(BaseModel):
+    experts: list[ExpertStatOut]
+    without_expert_count: int
 
 
 class FeedPlanPointOut(BaseModel):

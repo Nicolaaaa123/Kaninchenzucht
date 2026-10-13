@@ -1036,3 +1036,25 @@ th {
     margin-bottom: 0;
   }
 }
+
+/* Experten-Auswertung */
+.expert-card > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.expert-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.expert-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.expert-summary .expert-avg {
+  margin-left: auto;
+  font-weight: 700;
+}

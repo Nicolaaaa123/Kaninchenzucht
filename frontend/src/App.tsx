@@ -23,6 +23,7 @@ import { BluetoothScan } from "./pages/BluetoothScan";
 import { LitterNew } from "./pages/LitterNew";
 import { StallLabels } from "./pages/StallLabels";
 import { YearlyStats } from "./pages/YearlyStats";
+import { Experts } from "./pages/Experts";
 
 function AppShell() {
   const { theme, toggleTheme } = useTheme();
@@ -67,6 +68,7 @@ function AppShell() {
           <Route path="/chip-scanner" element={<BluetoothScan />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/statistik" element={<YearlyStats />} />
+          <Route path="/experten" element={<Experts />} />
           <Route path="/konto" element={<Account />} />
         </Routes>
       </main>
