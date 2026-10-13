@@ -4,6 +4,8 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { api } from "../api/client";
 import { ClipboardCheckIcon, ScaleIcon } from "../components/Icons";
 import { useAsync } from "../hooks/useAsync";
+import { niceAxisBounds } from "../utils/chartAxis";
+import { aggregateYearlyPoints } from "../utils/yearly";
 
 const CATEGORY_LABELS: Record<string, string> = {
   breeding: "Zuchttiere",
@@ -24,15 +26,16 @@ export function Dashboard() {
   const { data, loading, error } = useAsync(() => api.dashboard(), []);
   const yearlyEvaluations = useAsync(() => api.stats.yearlyEvaluations(), []);
 
-  const yearlyChartData = useMemo(() => {
-    const byYear = new Map<number, number>();
-    for (const r of yearlyEvaluations.data ?? []) {
-      byYear.set(r.year, (byYear.get(r.year) ?? 0) + r.avg_points);
-    }
-    return Array.from(byYear.entries())
-      .map(([year, points]) => ({ year, points: Math.round(points * 10) / 10 }))
-      .sort((a, b) => a.year - b.year);
-  }, [yearlyEvaluations.data]);
+  const yearlyChartData = useMemo(() => aggregateYearlyPoints(yearlyEvaluations.data ?? []), [yearlyEvaluations.data]);
+
+  const { domain: yearlyDomain, ticks: yearlyTicks } = useMemo(() => {
+    if (yearlyChartData.length === 0) return niceAxisBounds(0, 100);
+    const values = yearlyChartData.map((d) => d.points);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const padding = Math.max((max - min) * 0.1, 0.3);
+    return niceAxisBounds(Math.max(0, min - padding), max + padding);
+  }, [yearlyChartData]);
 
   const activity = useMemo<ActivityItem[]>(() => {
     if (!data) return [];
@@ -157,7 +160,7 @@ export function Dashboard() {
                 <LineChart data={yearlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                   <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} width={36} />
+                  <YAxis domain={yearlyDomain} ticks={yearlyTicks} tick={{ fontSize: 11 }} width={36} />
                   <Tooltip />
                   <Line type="monotone" dataKey="points" name="Ø Punkte" stroke="#4338ca" strokeWidth={2} dot={{ r: 3 }} />
                 </LineChart>
