@@ -128,10 +128,10 @@ export function AnimalDetail() {
   const { domain: offspringRadarDomain, ticks: offspringRadarTicks } = useMemo(() => {
     const values = offspringRadarData.map((d) => d.relative);
     if (values.length === 0) return niceAxisBounds(0, 100);
-    // Aussen immer 100 %, innen 15 Prozentpunkte unter dem schwächsten Wert
+    // Aussen immer 100 %, innen 8 Prozentpunkte unter dem schwächsten Wert
     // (auf 5er gerundet): so liegt der Schwerpunkt der Werte mittig im Netz
     // statt dass der schwächste Wert genau im Zentrum klebt.
-    const lower = Math.max(0, Math.floor((Math.min(...values) - 15) / 5) * 5);
+    const lower = Math.max(0, Math.floor((Math.min(...values) - 8) / 5) * 5);
     const ticks: number[] = [];
     const step = (100 - lower) / 4;
     for (let i = 0; i <= 4; i++) ticks.push(Math.round(lower + step * i));
