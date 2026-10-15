@@ -26,7 +26,7 @@ export function Dashboard() {
   const { data, loading, error } = useAsync(() => api.dashboard(), []);
   const yearlyEvaluations = useAsync(() => api.stats.seasonEvaluations(), []);
 
-  const yearlyChartData = useMemo(() => aggregateSeasonPoints(yearlyEvaluations.data ?? []), [yearlyEvaluations.data]);
+  const yearlyChartData = useMemo(() => aggregateSeasonPoints(yearlyEvaluations.data ?? [], true), [yearlyEvaluations.data]);
 
   const { domain: yearlyDomain, ticks: yearlyTicks } = useMemo(() => {
     if (yearlyChartData.length === 0) return niceAxisBounds(0, 100);

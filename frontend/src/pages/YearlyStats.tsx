@@ -31,7 +31,7 @@ export function YearlyStats() {
   const chartData = useMemo(() => {
     if (!evaluations.data) return [];
     const rows = position === ALL_POSITIONS ? evaluations.data : evaluations.data.filter((r) => r.category_label === position);
-    return aggregateSeasonPoints(rows);
+    return aggregateSeasonPoints(rows, position === ALL_POSITIONS);
   }, [evaluations.data, position]);
 
   const chartMax = useMemo(() => {

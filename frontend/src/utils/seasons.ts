@@ -12,7 +12,7 @@ export interface SeasonPoints {
  * Saison mehrere Rassen vorkommen -- deren Totale MITTELN statt addieren.
  * Sonst würde eine Saison mit zwei Rassen fälschlich die doppelte Punktzahl
  * zeigen (z.B. 191 statt ~96). */
-export function aggregateSeasonPoints(rows: SeasonEvaluationStat[]): SeasonPoints[] {
+export function aggregateSeasonPoints(rows: SeasonEvaluationStat[], normalizeTo100 = false): SeasonPoints[] {
   const bySeasonBreed = new Map<string, { seasonStart: number; season: string; points: number; maxPoints: number }>();
   for (const r of rows) {
     const key = `${r.season_start}|${r.breed_name}`;
@@ -20,6 +20,17 @@ export function aggregateSeasonPoints(rows: SeasonEvaluationStat[]): SeasonPoint
     entry.points += r.avg_points;
     entry.maxPoints += r.max_points;
     bySeasonBreed.set(key, entry);
+  }
+  // Gibt es für dieselbe Position mehrere Bezeichnungen (z.B. altes und neues
+  // Kartenformat derselben Rasse), würde die Summe über 100 steigen. Für die
+  // Gesamtansicht daher auf die 100-Punkte-Skala einer Karte umrechnen.
+  if (normalizeTo100) {
+    for (const entry of bySeasonBreed.values()) {
+      if (entry.maxPoints > 0) {
+        entry.points = (entry.points / entry.maxPoints) * 100;
+        entry.maxPoints = 100;
+      }
+    }
   }
   const bySeason = new Map<number, { season: string; pointsList: number[]; maxPoints: number }>();
   for (const { seasonStart, season, points, maxPoints } of bySeasonBreed.values()) {
