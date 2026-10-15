@@ -538,6 +538,14 @@ class SeasonEvaluationStatOut(BaseModel):
     sample_count: int
 
 
+class SeasonTotalOut(BaseModel):
+    season: str
+    season_start: int
+    breed_name: str
+    avg_points: float  # Gesamtpunkte, auf 100 umgerechnet
+    sample_count: int
+
+
 class EvaluatedBreedOut(BaseModel):
     breed_id: uuid.UUID
     breed_name: str

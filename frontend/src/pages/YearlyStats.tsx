@@ -5,7 +5,7 @@ import { api } from "../api/client";
 import { BreedColorFilter } from "../components/BreedColorFilter";
 import { useAsync } from "../hooks/useAsync";
 import { niceAxisBounds } from "../utils/chartAxis";
-import { aggregateSeasonPoints } from "../utils/seasons";
+import { aggregateSeasonPoints, aggregateSeasonTotals } from "../utils/seasons";
 
 const ALL_POSITIONS = "__all__";
 const ALL_SEASONS = "__all__";
@@ -22,6 +22,11 @@ export function YearlyStats() {
     [breedId, colorVariant],
   );
 
+  const totals = useAsync(
+    () => api.stats.seasonTotals(breedId || undefined, colorVariant || undefined),
+    [breedId, colorVariant],
+  );
+
   const positionOptions = useMemo(() => {
     const labels = new Set<string>();
     for (const row of evaluations.data ?? []) labels.add(row.category_label);
@@ -29,10 +34,15 @@ export function YearlyStats() {
   }, [evaluations.data]);
 
   const chartData = useMemo(() => {
-    if (!evaluations.data) return [];
-    const rows = position === ALL_POSITIONS ? evaluations.data : evaluations.data.filter((r) => r.category_label === position);
-    return aggregateSeasonPoints(rows, position === ALL_POSITIONS);
-  }, [evaluations.data, position]);
+    if (position === ALL_POSITIONS) return aggregateSeasonTotals(totals.data ?? []);
+    const rows = (evaluations.data ?? []).filter((r) => r.category_label === position);
+    // Dieselbe Position kann je Kartenformat 10 oder 20 Punkte haben: nur die
+    // am häufigsten vorkommende Variante in den Verlauf nehmen.
+    const samplesByMax = new Map<number, number>();
+    for (const r of rows) samplesByMax.set(r.max_points, (samplesByMax.get(r.max_points) ?? 0) + r.sample_count);
+    const mainMax = Array.from(samplesByMax.entries()).sort((a, b) => b[1] - a[1])[0]?.[0];
+    return aggregateSeasonPoints(rows.filter((r) => r.max_points === mainMax));
+  }, [evaluations.data, totals.data, position]);
 
   const chartMax = useMemo(() => {
     const max = Math.max(0, ...chartData.map((d) => d.maxPoints));
@@ -103,7 +113,7 @@ export function YearlyStats() {
 
       <div className="card section">
         <h2>{position === ALL_POSITIONS ? "Alle Positionen" : position} je Saison</h2>
-        {evaluations.loading && <p>Lade…</p>}
+        {(evaluations.loading || totals.loading) && <p>Lade…</p>}
         {chartData.length > 0 ? (
           <div style={{ height: 260 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -123,7 +133,7 @@ export function YearlyStats() {
             </ResponsiveContainer>
           </div>
         ) : (
-          !evaluations.loading && <p className="empty-state">Noch keine Bewertungsdaten für diese Auswahl.</p>
+          !evaluations.loading && !totals.loading && <p className="empty-state">Noch keine Bewertungsdaten für diese Auswahl.</p>
         )}
       </div>
 
@@ -162,7 +172,7 @@ export function YearlyStats() {
                   .filter((r) => position === ALL_POSITIONS || r.category_label === position)
                   .sort((a, b) => b.avg_points / b.max_points - a.avg_points / a.max_points)
                   .map((r) => (
-                    <tr key={`${r.breed_name}-${r.category_label}`}>
+                    <tr key={`${r.breed_name}-${r.category_label}-${r.max_points}`}>
                       <td>{r.breed_name}</td>
                       <td>{r.category_label}</td>
                       <td>

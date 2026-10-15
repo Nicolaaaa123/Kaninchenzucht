@@ -5,7 +5,7 @@ import { api } from "../api/client";
 import { ClipboardCheckIcon, ScaleIcon } from "../components/Icons";
 import { useAsync } from "../hooks/useAsync";
 import { niceAxisBounds } from "../utils/chartAxis";
-import { aggregateSeasonPoints } from "../utils/seasons";
+import { aggregateSeasonTotals } from "../utils/seasons";
 
 const CATEGORY_LABELS: Record<string, string> = {
   breeding: "Zuchttiere",
@@ -24,9 +24,9 @@ type ActivityItem = {
 
 export function Dashboard() {
   const { data, loading, error } = useAsync(() => api.dashboard(), []);
-  const yearlyEvaluations = useAsync(() => api.stats.seasonEvaluations(), []);
+  const yearlyEvaluations = useAsync(() => api.stats.seasonTotals(), []);
 
-  const yearlyChartData = useMemo(() => aggregateSeasonPoints(yearlyEvaluations.data ?? [], true), [yearlyEvaluations.data]);
+  const yearlyChartData = useMemo(() => aggregateSeasonTotals(yearlyEvaluations.data ?? []), [yearlyEvaluations.data]);
 
   const { domain: yearlyDomain, ticks: yearlyTicks } = useMemo(() => {
     if (yearlyChartData.length === 0) return niceAxisBounds(0, 100);

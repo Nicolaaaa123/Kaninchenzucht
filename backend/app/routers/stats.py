@@ -183,14 +183,15 @@ def season_evaluations(
     if color_variant:
         stmt = stmt.where(models.Animal.color_variant == color_variant)
 
-    buckets: dict[tuple[int, str, str], list[float]] = {}
-    max_points_buckets: dict[tuple[int, str, str], list[int]] = {}
+    # Getrennt nach Positionsname UND Höchstpunktzahl: dieselbe Bezeichnung
+    # kann je nach Kartenformat 10 oder 20 Punkte wert sein (z.B. "Farbe und
+    # Glanz"), das darf nicht in einem Durchschnitt landen.
+    buckets: dict[tuple[int, str, str, int], list[float]] = {}
     for evaluated_on, category_label, points, max_points, breed_name in db.execute(stmt).all():
         if not max_points:
             continue
-        key = (season_start_year(evaluated_on), breed_name or "Ohne Rasse", category_label)
+        key = (season_start_year(evaluated_on), breed_name or "Ohne Rasse", category_label, max_points)
         buckets.setdefault(key, []).append(points)
-        max_points_buckets.setdefault(key, []).append(max_points)
 
     return [
         schemas.SeasonEvaluationStatOut(
@@ -199,11 +200,64 @@ def season_evaluations(
             breed_name=breed_name,
             category_label=category_label,
             avg_points=round(statistics.mean(values), 1),
-            # häufigster max_points-Wert der Position (Rassestandard) statt
-            # Mittelwert, falls durch Alt-/Scanfehler mal ein falscher Wert
-            # zwischendrin steckt.
-            max_points=Counter(max_points_buckets[(start_year, breed_name, category_label)]).most_common(1)[0][0],
+            max_points=max_points,
             sample_count=len(values),
         )
-        for (start_year, breed_name, category_label), values in sorted(buckets.items())
+        for (start_year, breed_name, category_label, max_points), values in sorted(buckets.items())
+    ]
+
+
+@router.get("/season-totals", response_model=list[schemas.SeasonTotalOut])
+def season_totals(
+    breed_id: uuid.UUID | None = None,
+    color_variant: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Durchschnittliche Gesamtpunktzahl je Saison und Rasse, umgerechnet auf
+    100 Punkte. Jede Karte zählt als Ganzes (Summe ihrer Positionen), damit
+    unterschiedliche Kartenformate die Auswertung nicht verfälschen."""
+    stmt = (
+        select(
+            models.Evaluation.id,
+            models.Evaluation.evaluated_on,
+            models.EvaluationScore.points,
+            models.EvaluationScore.max_points,
+            models.Breed.name,
+        )
+        .select_from(models.EvaluationScore)
+        .join(models.Evaluation)
+        .join(models.Animal, models.Evaluation.animal_id == models.Animal.id)
+        .outerjoin(models.Breed)
+        .where(models.Animal.tenant_id == current_user.tenant_id)
+    )
+    if breed_id:
+        stmt = stmt.where(models.Animal.breed_id == breed_id)
+    if color_variant:
+        stmt = stmt.where(models.Animal.color_variant == color_variant)
+
+    cards: dict[uuid.UUID, dict] = {}
+    for evaluation_id, evaluated_on, points, max_points, breed_name in db.execute(stmt).all():
+        card = cards.setdefault(
+            evaluation_id,
+            {"on": evaluated_on, "breed": breed_name or "Ohne Rasse", "points": 0.0, "max": 0},
+        )
+        card["points"] += points
+        card["max"] += max_points or 0
+
+    buckets: dict[tuple[int, str], list[float]] = {}
+    for card in cards.values():
+        if card["max"] > 0:
+            key = (season_start_year(card["on"]), card["breed"])
+            buckets.setdefault(key, []).append(card["points"] / card["max"] * 100)
+
+    return [
+        schemas.SeasonTotalOut(
+            season=season_label(start_year),
+            season_start=start_year,
+            breed_name=breed_name,
+            avg_points=round(statistics.mean(values), 1),
+            sample_count=len(values),
+        )
+        for (start_year, breed_name), values in sorted(buckets.items())
     ]

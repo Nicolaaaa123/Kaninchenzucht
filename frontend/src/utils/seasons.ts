@@ -1,4 +1,4 @@
-import type { SeasonEvaluationStat } from "../api/types";
+import type { SeasonEvaluationStat, SeasonTotal } from "../api/types";
 
 export interface SeasonPoints {
   season: string;
@@ -12,7 +12,7 @@ export interface SeasonPoints {
  * Saison mehrere Rassen vorkommen -- deren Totale MITTELN statt addieren.
  * Sonst würde eine Saison mit zwei Rassen fälschlich die doppelte Punktzahl
  * zeigen (z.B. 191 statt ~96). */
-export function aggregateSeasonPoints(rows: SeasonEvaluationStat[], normalizeTo100 = false): SeasonPoints[] {
+export function aggregateSeasonPoints(rows: SeasonEvaluationStat[]): SeasonPoints[] {
   const bySeasonBreed = new Map<string, { seasonStart: number; season: string; points: number; maxPoints: number }>();
   for (const r of rows) {
     const key = `${r.season_start}|${r.breed_name}`;
@@ -20,17 +20,6 @@ export function aggregateSeasonPoints(rows: SeasonEvaluationStat[], normalizeTo1
     entry.points += r.avg_points;
     entry.maxPoints += r.max_points;
     bySeasonBreed.set(key, entry);
-  }
-  // Gibt es für dieselbe Position mehrere Bezeichnungen (z.B. altes und neues
-  // Kartenformat derselben Rasse), würde die Summe über 100 steigen. Für die
-  // Gesamtansicht daher auf die 100-Punkte-Skala einer Karte umrechnen.
-  if (normalizeTo100) {
-    for (const entry of bySeasonBreed.values()) {
-      if (entry.maxPoints > 0) {
-        entry.points = (entry.points / entry.maxPoints) * 100;
-        entry.maxPoints = 100;
-      }
-    }
   }
   const bySeason = new Map<number, { season: string; pointsList: number[]; maxPoints: number }>();
   for (const { seasonStart, season, points, maxPoints } of bySeasonBreed.values()) {
@@ -45,6 +34,25 @@ export function aggregateSeasonPoints(rows: SeasonEvaluationStat[], normalizeTo1
       seasonStart,
       points: Math.round((pointsList.reduce((a, b) => a + b, 0) / pointsList.length) * 10) / 10,
       maxPoints,
+    }))
+    .sort((a, b) => a.seasonStart - b.seasonStart);
+}
+
+/** Gesamtverlauf je Saison aus den Kartensummen (auf 100 Punkte umgerechnet,
+ * siehe /api/stats/season-totals). Mehrere Rassen einer Saison werden gemittelt. */
+export function aggregateSeasonTotals(rows: SeasonTotal[]): SeasonPoints[] {
+  const bySeason = new Map<number, { season: string; values: number[] }>();
+  for (const r of rows) {
+    const entry = bySeason.get(r.season_start) ?? { season: r.season, values: [] };
+    entry.values.push(r.avg_points);
+    bySeason.set(r.season_start, entry);
+  }
+  return Array.from(bySeason.entries())
+    .map(([seasonStart, { season, values }]) => ({
+      season,
+      seasonStart,
+      points: Math.round((values.reduce((a, b) => a + b, 0) / values.length) * 10) / 10,
+      maxPoints: 100,
     }))
     .sort((a, b) => a.seasonStart - b.seasonStart);
 }

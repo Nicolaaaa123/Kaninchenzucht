@@ -130,6 +130,8 @@ export const api = {
       request<YearlyWeightStat[]>(`/api/stats/yearly-weights${breedId ? `?breed_id=${breedId}` : ""}`),
     seasonEvaluations: (breedId?: string, colorVariant?: string) =>
       request<SeasonEvaluationStat[]>(`/api/stats/season-evaluations${breedFilterQuery(breedId, colorVariant)}`),
+    seasonTotals: (breedId?: string, colorVariant?: string) =>
+      request<SeasonTotal[]>(`/api/stats/season-totals${breedFilterQuery(breedId, colorVariant)}`),
     evaluatedBreeds: () => request<EvaluatedBreed[]>("/api/stats/evaluated-breeds"),
     experts: (breedId?: string, colorVariant?: string) =>
       request<ExpertsOverview>(`/api/stats/experts${breedFilterQuery(breedId, colorVariant)}`),

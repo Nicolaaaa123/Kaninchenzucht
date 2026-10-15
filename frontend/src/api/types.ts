@@ -116,6 +116,14 @@ export interface SeasonEvaluationStat {
   sample_count: number;
 }
 
+export interface SeasonTotal {
+  season: string;
+  season_start: number;
+  breed_name: string;
+  avg_points: number; // Gesamtpunkte, auf 100 umgerechnet
+  sample_count: number;
+}
+
 export interface EvaluatedBreed {
   breed_id: string;
   breed_name: string;
