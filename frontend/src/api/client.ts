@@ -38,6 +38,7 @@ import type {
   StrengthsWeaknesses,
   WeightEntry,
   SeasonEvaluationStat,
+  SeasonTotal,
   EvaluatedBreed,
   ExpertsOverview,
   YearlyWeightStat,
