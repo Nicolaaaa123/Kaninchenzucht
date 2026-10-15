@@ -5,6 +5,7 @@ import { LitterOverview } from "../components/LitterOverview";
 import { useAsync } from "../hooks/useAsync";
 import type { AnimalListItem, AnimalStatus, BreedingCategory } from "../api/types";
 import { animalLabel } from "../utils/animalLabel";
+import { formatDate, todayIso } from "../utils/claws";
 
 const STATUS_LABELS: Record<AnimalStatus, string> = {
   active: "Aktiv",
@@ -60,6 +61,21 @@ function saveStoredFilters(patch: StoredFilters) {
 export function Animals() {
   const [searchParams] = useSearchParams();
   const litterCount = searchParams.get("wurf");
+
+  const [clawsAllOpen, setClawsAllOpen] = useState(false);
+  const [clawsAllDate, setClawsAllDate] = useState(todayIso());
+  const [clawsAllMessage, setClawsAllMessage] = useState<string | null>(null);
+
+  async function handleClawsAll() {
+    if (!clawsAllDate) return;
+    try {
+      const res = await api.animals.markAllClawsTrimmed(clawsAllDate);
+      setClawsAllMessage(`Krallenschnitt (${formatDate(clawsAllDate)}) bei ${res.updated_count} aktiven Tieren eingetragen.`);
+      setClawsAllOpen(false);
+    } catch (err) {
+      setClawsAllMessage(`Fehler: ${(err as Error).message}`);
+    }
+  }
 
   const initialFilters = useMemo(loadStoredFilters, []);
   const [search, setSearchState] = useState(initialFilters.search ?? "");
@@ -262,6 +278,31 @@ export function Animals() {
         <Link className="btn" to="/tiere/neu">
           + Neues Tier
         </Link>
+      </div>
+      <div className="toolbar">
+        {!clawsAllOpen ? (
+          <button
+            className="btn secondary"
+            onClick={() => {
+              setClawsAllDate(todayIso());
+              setClawsAllMessage(null);
+              setClawsAllOpen(true);
+            }}
+          >
+            Krallen bei allen geschnitten
+          </button>
+        ) : (
+          <>
+            <input type="date" value={clawsAllDate} max={todayIso()} onChange={(e) => setClawsAllDate(e.target.value)} />
+            <button className="btn" onClick={handleClawsAll} disabled={!clawsAllDate}>
+              Bei allen aktiven Tieren eintragen
+            </button>
+            <button className="btn secondary" onClick={() => setClawsAllOpen(false)}>
+              Abbrechen
+            </button>
+          </>
+        )}
+        {clawsAllMessage && <span className="hint">{clawsAllMessage}</span>}
       </div>
 
       <div className="page-tabs" style={{ marginBottom: 16 }}>

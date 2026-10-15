@@ -191,6 +191,11 @@ export const api = {
     update: (id: string, data: Record<string, unknown>) =>
       request<Animal>(`/api/animals/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
     remove: (id: string) => request<void>(`/api/animals/${id}`, { method: "DELETE" }),
+    markAllClawsTrimmed: (trimmedOn: string) =>
+      request<{ updated_count: number }>("/api/animals/claws-trimmed", {
+        method: "POST",
+        body: JSON.stringify({ trimmed_on: trimmedOn }),
+      }),
     children: (id: string) => request<AnimalListItem[]>(`/api/animals/${id}/children`),
     lookup: (identifier: string) =>
       request<AnimalLookup>(`/api/animals/lookup?identifier=${encodeURIComponent(identifier)}`),

@@ -616,11 +616,9 @@ export function AnimalDetail() {
           const soon = claws.daysUntilDue != null && claws.daysUntilDue > 0 && claws.daysUntilDue <= 14;
           return (
             <div style={{ marginTop: 16 }}>
-              {(overdue || a.claws_trimmed_on == null) && (
-                <div className="warning-banner">
-                  {a.claws_trimmed_on == null
-                    ? "Krallenschnitt noch nicht eingetragen – bitte nach dem nächsten Schneiden festhalten (alle 3 Monate)."
-                    : `Es ist Zeit, die Krallen zu schneiden! Fällig seit ${formatDate(claws.nextDue!)} (letzter Schnitt: ${formatDate(a.claws_trimmed_on)}).`}
+              {overdue && (
+                <div className="hint" style={{ marginBottom: 6, color: "var(--color-warning)" }}>
+                  Zeit, die Krallen zu schneiden – fällig seit {formatDate(claws.nextDue!)}.
                 </div>
               )}
               <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>

@@ -205,6 +205,29 @@ def create_animal(
     return _animal_out(db, animal)
 
 
+@router.post("/claws-trimmed", response_model=schemas.ClawsTrimmedAllOut)
+def mark_all_claws_trimmed(
+    data: schemas.ClawsTrimmedAll,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Krallenschnitt für alle aktiven Tiere des Bestands auf einmal eintragen."""
+    animals = (
+        db.execute(
+            select(models.Animal).where(
+                models.Animal.tenant_id == current_user.tenant_id,
+                models.Animal.status == models.AnimalStatus.ACTIVE,
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for animal in animals:
+        animal.claws_trimmed_on = data.trimmed_on
+    db.commit()
+    return schemas.ClawsTrimmedAllOut(updated_count=len(animals))
+
+
 @router.post("/litter", response_model=schemas.LitterResultOut, status_code=201)
 def create_litter(
     payload: schemas.LitterCreate,

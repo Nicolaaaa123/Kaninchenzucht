@@ -520,6 +520,14 @@ class YearlyWeightStatOut(BaseModel):
     sample_count: int
 
 
+class ClawsTrimmedAll(BaseModel):
+    trimmed_on: date
+
+
+class ClawsTrimmedAllOut(BaseModel):
+    updated_count: int
+
+
 class SeasonEvaluationStatOut(BaseModel):
     season: str  # z.B. "25/26"
     season_start: int  # Startjahr, z.B. 2025 -- zum Sortieren
