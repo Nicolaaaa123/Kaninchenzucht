@@ -263,6 +263,7 @@ class Animal(Base):
         _enum(FeedingStage, "feeding_stage"), nullable=False, default=FeedingStage.MAINTENANCE
     )
     mating_date: Mapped[date | None] = mapped_column(Date, nullable=True)  # Deckdatum
+    claws_trimmed_on: Mapped[date | None] = mapped_column(Date, nullable=True)  # letzter Krallenschnitt
     target_weight_grams: Mapped[int | None] = mapped_column(Integer, nullable=True)
     target_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     target_date_end: Mapped[date | None] = mapped_column(Date, nullable=True)

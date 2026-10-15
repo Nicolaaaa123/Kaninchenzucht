@@ -250,6 +250,7 @@ class AnimalBase(BaseModel):
     category: BreedingCategory = BreedingCategory.YOUNG
     feeding_stage: FeedingStage = FeedingStage.MAINTENANCE
     mating_date: date | None = None
+    claws_trimmed_on: date | None = None
     target_weight_grams: int | None = None
     target_date: date | None = None
     target_date_end: date | None = None
@@ -277,6 +278,7 @@ class AnimalUpdate(BaseModel):
     category: BreedingCategory | None = None
     feeding_stage: FeedingStage | None = None
     mating_date: date | None = None
+    claws_trimmed_on: date | None = None
     target_weight_grams: int | None = None
     target_date: date | None = None
     target_date_end: date | None = None
@@ -518,13 +520,20 @@ class YearlyWeightStatOut(BaseModel):
     sample_count: int
 
 
-class YearlyEvaluationStatOut(BaseModel):
-    year: int
+class SeasonEvaluationStatOut(BaseModel):
+    season: str  # z.B. "25/26"
+    season_start: int  # Startjahr, z.B. 2025 -- zum Sortieren
     breed_name: str
     category_label: str
     avg_points: float
     max_points: int
     sample_count: int
+
+
+class EvaluatedBreedOut(BaseModel):
+    breed_id: uuid.UUID
+    breed_name: str
+    color_variants: list[str]
 
 
 class ExpertPositionAvgOut(BaseModel):

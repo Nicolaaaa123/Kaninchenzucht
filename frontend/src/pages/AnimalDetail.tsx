@@ -33,6 +33,7 @@ import {
 } from "../utils/growth";
 import { niceAxisBounds } from "../utils/chartAxis";
 import { animalLabel } from "../utils/animalLabel";
+import { clawsStatus, formatDate, todayIso } from "../utils/claws";
 import { SWISS_EXPERTS } from "../data/experts";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -127,10 +128,14 @@ export function AnimalDetail() {
   const { domain: offspringRadarDomain, ticks: offspringRadarTicks } = useMemo(() => {
     const values = offspringRadarData.map((d) => d.relative);
     if (values.length === 0) return niceAxisBounds(0, 100);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const padding = Math.max((max - min) * 0.1, 0.5);
-    return niceAxisBounds(Math.max(0, min - padding), Math.min(100, max + padding));
+    // Aussen immer 100 %, innen 15 Prozentpunkte unter dem schwächsten Wert
+    // (auf 5er gerundet): so liegt der Schwerpunkt der Werte mittig im Netz
+    // statt dass der schwächste Wert genau im Zentrum klebt.
+    const lower = Math.max(0, Math.floor((Math.min(...values) - 15) / 5) * 5);
+    const ticks: number[] = [];
+    const step = (100 - lower) / 4;
+    for (let i = 0; i <= 4; i++) ticks.push(Math.round(lower + step * i));
+    return { domain: [lower, 100] as [number, number], ticks };
   }, [offspringRadarData]);
   const strengthsWeaknesses = useAsync(
     () => api.animals.strengthsWeaknesses(id),
@@ -163,6 +168,8 @@ export function AnimalDetail() {
   const [targetDate, setTargetDate] = useState("");
   const [targetDateEnd, setTargetDateEnd] = useState("");
   const [matingDate, setMatingDate] = useState("");
+  const [editingClaws, setEditingClaws] = useState(false);
+  const [clawsDate, setClawsDate] = useState("");
 
   const [pairingCandidateId, setPairingCandidateId] = useState("");
   const [pairingResult, setPairingResult] = useState<{ inbreeding_coefficient: number; risk_level: string } | null>(
@@ -281,6 +288,13 @@ export function AnimalDetail() {
     } finally {
       setInfoSaving(false);
     }
+  }
+
+  async function handleClawsTrimmed(date: string) {
+    if (!date) return;
+    await api.animals.update(id, { claws_trimmed_on: date });
+    setEditingClaws(false);
+    animal.reload();
   }
 
   async function handleMatingDateSave() {
@@ -595,6 +609,57 @@ export function AnimalDetail() {
             </div>
           </div>
         )}
+
+        {(() => {
+          const claws = clawsStatus(a.claws_trimmed_on);
+          const overdue = claws.daysUntilDue != null && claws.daysUntilDue <= 0;
+          const soon = claws.daysUntilDue != null && claws.daysUntilDue > 0 && claws.daysUntilDue <= 14;
+          return (
+            <div style={{ marginTop: 16 }}>
+              {(overdue || a.claws_trimmed_on == null) && (
+                <div className="warning-banner">
+                  {a.claws_trimmed_on == null
+                    ? "Krallenschnitt noch nicht eingetragen – bitte nach dem nächsten Schneiden festhalten (alle 3 Monate)."
+                    : `Es ist Zeit, die Krallen zu schneiden! Fällig seit ${formatDate(claws.nextDue!)} (letzter Schnitt: ${formatDate(a.claws_trimmed_on)}).`}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <span>
+                  <strong>Krallen:</strong>{" "}
+                  {a.claws_trimmed_on
+                    ? `zuletzt ${formatDate(a.claws_trimmed_on)}, nächster Schnitt ${formatDate(claws.nextDue!)}${soon ? ` (in ${claws.daysUntilDue} Tagen)` : ""}`
+                    : "noch nie eingetragen"}
+                </span>
+                {!editingClaws ? (
+                  <>
+                    <button className="btn small" onClick={() => handleClawsTrimmed(todayIso())}>
+                      Heute geschnitten
+                    </button>
+                    <button
+                      className="btn secondary small"
+                      onClick={() => {
+                        setClawsDate(a.claws_trimmed_on ?? todayIso());
+                        setEditingClaws(true);
+                      }}
+                    >
+                      Datum wählen
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <input type="date" value={clawsDate} max={todayIso()} onChange={(e) => setClawsDate(e.target.value)} />
+                    <button className="btn small" onClick={() => handleClawsTrimmed(clawsDate)} disabled={!clawsDate}>
+                      Speichern
+                    </button>
+                    <button className="btn secondary small" onClick={() => setEditingClaws(false)}>
+                      Abbrechen
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="toolbar" style={{ marginTop: 16, marginBottom: 0 }}>
           <button className="btn accent" onClick={handleQuickWeightJump}>

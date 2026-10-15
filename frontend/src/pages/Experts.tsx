@@ -1,13 +1,20 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/client";
+import { BreedColorFilter } from "../components/BreedColorFilter";
 import { useAsync } from "../hooks/useAsync";
 import { animalLabel } from "../utils/animalLabel";
 
 type SortKey = "count" | "avg";
 
 export function Experts() {
-  const overview = useAsync(() => api.stats.experts(), []);
+  const breeds = useAsync(() => api.stats.evaluatedBreeds(), []);
+  const [breedId, setBreedId] = useState("");
+  const [colorVariant, setColorVariant] = useState("");
+  const overview = useAsync(
+    () => api.stats.experts(breedId || undefined, colorVariant || undefined),
+    [breedId, colorVariant],
+  );
   const [sortKey, setSortKey] = useState<SortKey>("count");
 
   const experts = useMemo(() => {
@@ -31,6 +38,13 @@ export function Experts() {
       </p>
 
       <div className="toolbar">
+        <BreedColorFilter
+          breeds={breeds.data ?? []}
+          breedId={breedId}
+          colorVariant={colorVariant}
+          onBreedChange={setBreedId}
+          onColorVariantChange={setColorVariant}
+        />
         <select value={sortKey} onChange={(e) => setSortKey(e.target.value as SortKey)}>
           <option value="count">Sortierung: Anzahl Karten</option>
           <option value="avg">Sortierung: Ø Gesamtpunkte</option>

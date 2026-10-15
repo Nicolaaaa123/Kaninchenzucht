@@ -106,13 +106,20 @@ export interface YearlyWeightStat {
   sample_count: number;
 }
 
-export interface YearlyEvaluationStat {
-  year: number;
+export interface SeasonEvaluationStat {
+  season: string; // "25/26"
+  season_start: number; // 2025
   breed_name: string;
   category_label: string;
   avg_points: number;
   max_points: number;
   sample_count: number;
+}
+
+export interface EvaluatedBreed {
+  breed_id: string;
+  breed_name: string;
+  color_variants: string[];
 }
 
 export interface FeedPlanPoint {
@@ -222,6 +229,7 @@ export interface Animal {
   category: BreedingCategory;
   feeding_stage: FeedingStage;
   mating_date: string | null;
+  claws_trimmed_on: string | null;
   target_weight_grams: number | null;
   target_date: string | null;
   target_date_end: string | null;

@@ -37,7 +37,8 @@ import type {
   StallPage,
   StrengthsWeaknesses,
   WeightEntry,
-  YearlyEvaluationStat,
+  SeasonEvaluationStat,
+  EvaluatedBreed,
   ExpertsOverview,
   YearlyWeightStat,
 } from "./types";
@@ -67,6 +68,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
+}
+
+function breedFilterQuery(breedId?: string, colorVariant?: string): string {
+  const params = new URLSearchParams();
+  if (breedId) params.set("breed_id", breedId);
+  if (breedId && colorVariant) params.set("color_variant", colorVariant);
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
 }
 
 export const api = {
@@ -119,9 +128,11 @@ export const api = {
   stats: {
     yearlyWeights: (breedId?: string) =>
       request<YearlyWeightStat[]>(`/api/stats/yearly-weights${breedId ? `?breed_id=${breedId}` : ""}`),
-    yearlyEvaluations: (breedId?: string) =>
-      request<YearlyEvaluationStat[]>(`/api/stats/yearly-evaluations${breedId ? `?breed_id=${breedId}` : ""}`),
-    experts: () => request<ExpertsOverview>("/api/stats/experts"),
+    seasonEvaluations: (breedId?: string, colorVariant?: string) =>
+      request<SeasonEvaluationStat[]>(`/api/stats/season-evaluations${breedFilterQuery(breedId, colorVariant)}`),
+    evaluatedBreeds: () => request<EvaluatedBreed[]>("/api/stats/evaluated-breeds"),
+    experts: (breedId?: string, colorVariant?: string) =>
+      request<ExpertsOverview>(`/api/stats/experts${breedFilterQuery(breedId, colorVariant)}`),
   },
 
   feeds: {

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from app.auth import get_current_user
 from app.database import get_db
+from app.services.seasons import season_label, season_start_year
 
 router = APIRouter(prefix="/api/stats", tags=["stats"])
 
@@ -50,26 +51,57 @@ def yearly_weights(
     ]
 
 
+@router.get("/evaluated-breeds", response_model=list[schemas.EvaluatedBreedOut])
+def evaluated_breeds(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Nur Rassen (samt Farbenschlägen), zu denen es mindestens eine
+    Bewertungskarte gibt -- für die Rassen-/Farbenschlag-Filter der Auswertungen."""
+    rows = db.execute(
+        select(models.Breed.id, models.Breed.name, models.Animal.color_variant)
+        .select_from(models.Evaluation)
+        .join(models.Animal, models.Evaluation.animal_id == models.Animal.id)
+        .join(models.Breed, models.Animal.breed_id == models.Breed.id)
+        .where(models.Animal.tenant_id == current_user.tenant_id)
+        .distinct()
+    ).all()
+    breeds: dict[uuid.UUID, schemas.EvaluatedBreedOut] = {}
+    for breed_id, breed_name, color_variant in rows:
+        entry = breeds.setdefault(
+            breed_id, schemas.EvaluatedBreedOut(breed_id=breed_id, breed_name=breed_name, color_variants=[])
+        )
+        if color_variant and color_variant not in entry.color_variants:
+            entry.color_variants.append(color_variant)
+    result = sorted(breeds.values(), key=lambda b: b.breed_name)
+    for b in result:
+        b.color_variants.sort()
+    return result
+
+
 @router.get("/experts", response_model=schemas.ExpertsOverviewOut)
 def experts_overview(
+    breed_id: uuid.UUID | None = None,
+    color_variant: str | None = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
     """Auswertung der Bewertungskarten pro Experte (Preisrichter): wie viele
     Karten/Tiere, Durchschnittspunkte gesamt und je Position. Steht auf einer
-    Karte mit " / " mehr als ein Experte, zählt sie für jeden von ihnen."""
-    evaluations = (
-        db.execute(
-            select(models.Evaluation)
-            .options(joinedload(models.Evaluation.scores), joinedload(models.Evaluation.animal))
-            .join(models.Animal, models.Evaluation.animal_id == models.Animal.id)
-            .where(models.Animal.tenant_id == current_user.tenant_id)
-            .order_by(models.Evaluation.evaluated_on.desc())
-        )
-        .unique()
-        .scalars()
-        .all()
+    Karte mit " / " mehr als ein Experte, zählt sie für jeden von ihnen.
+    Optional auf eine Rasse (und deren Farbenschlag) eingegrenzt."""
+    stmt = (
+        select(models.Evaluation)
+        .options(joinedload(models.Evaluation.scores), joinedload(models.Evaluation.animal))
+        .join(models.Animal, models.Evaluation.animal_id == models.Animal.id)
+        .where(models.Animal.tenant_id == current_user.tenant_id)
+        .order_by(models.Evaluation.evaluated_on.desc())
     )
+    if breed_id:
+        stmt = stmt.where(models.Animal.breed_id == breed_id)
+    if color_variant:
+        stmt = stmt.where(models.Animal.color_variant == color_variant)
+    evaluations = db.execute(stmt).unique().scalars().all()
 
     by_expert: dict[str, list[models.Evaluation]] = {}
     without_expert = 0
@@ -122,14 +154,16 @@ def experts_overview(
     return schemas.ExpertsOverviewOut(experts=experts, without_expert_count=without_expert)
 
 
-@router.get("/yearly-evaluations", response_model=list[schemas.YearlyEvaluationStatOut])
-def yearly_evaluations(
+@router.get("/season-evaluations", response_model=list[schemas.SeasonEvaluationStatOut])
+def season_evaluations(
     breed_id: uuid.UUID | None = None,
+    color_variant: str | None = None,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """Bewertungspositionen gruppiert nach Jahr, Rasse und Kategorie — zeigt,
-    in welchen Jahren welche Positionen besonders gut/schlecht abschnitten."""
+    """Bewertungspositionen gruppiert nach Saison (1.9.–31.8.), Rasse und
+    Kategorie — zeigt, in welchen Saisons welche Positionen besonders
+    gut/schlecht abschnitten."""
     stmt = (
         select(
             models.Evaluation.evaluated_on,
@@ -146,27 +180,30 @@ def yearly_evaluations(
     )
     if breed_id:
         stmt = stmt.where(models.Animal.breed_id == breed_id)
+    if color_variant:
+        stmt = stmt.where(models.Animal.color_variant == color_variant)
 
     buckets: dict[tuple[int, str, str], list[float]] = {}
     max_points_buckets: dict[tuple[int, str, str], list[int]] = {}
     for evaluated_on, category_label, points, max_points, breed_name in db.execute(stmt).all():
         if not max_points:
             continue
-        key = (evaluated_on.year, breed_name or "Ohne Rasse", category_label)
+        key = (season_start_year(evaluated_on), breed_name or "Ohne Rasse", category_label)
         buckets.setdefault(key, []).append(points)
         max_points_buckets.setdefault(key, []).append(max_points)
 
     return [
-        schemas.YearlyEvaluationStatOut(
-            year=year,
+        schemas.SeasonEvaluationStatOut(
+            season=season_label(start_year),
+            season_start=start_year,
             breed_name=breed_name,
             category_label=category_label,
             avg_points=round(statistics.mean(values), 1),
             # häufigster max_points-Wert der Position (Rassestandard) statt
             # Mittelwert, falls durch Alt-/Scanfehler mal ein falscher Wert
             # zwischendrin steckt.
-            max_points=Counter(max_points_buckets[(year, breed_name, category_label)]).most_common(1)[0][0],
+            max_points=Counter(max_points_buckets[(start_year, breed_name, category_label)]).most_common(1)[0][0],
             sample_count=len(values),
         )
-        for (year, breed_name, category_label), values in sorted(buckets.items())
+        for (start_year, breed_name, category_label), values in sorted(buckets.items())
     ]

@@ -5,7 +5,7 @@ import { api } from "../api/client";
 import { ClipboardCheckIcon, ScaleIcon } from "../components/Icons";
 import { useAsync } from "../hooks/useAsync";
 import { niceAxisBounds } from "../utils/chartAxis";
-import { aggregateYearlyPoints } from "../utils/yearly";
+import { aggregateSeasonPoints } from "../utils/seasons";
 
 const CATEGORY_LABELS: Record<string, string> = {
   breeding: "Zuchttiere",
@@ -24,9 +24,9 @@ type ActivityItem = {
 
 export function Dashboard() {
   const { data, loading, error } = useAsync(() => api.dashboard(), []);
-  const yearlyEvaluations = useAsync(() => api.stats.yearlyEvaluations(), []);
+  const yearlyEvaluations = useAsync(() => api.stats.seasonEvaluations(), []);
 
-  const yearlyChartData = useMemo(() => aggregateYearlyPoints(yearlyEvaluations.data ?? []), [yearlyEvaluations.data]);
+  const yearlyChartData = useMemo(() => aggregateSeasonPoints(yearlyEvaluations.data ?? []), [yearlyEvaluations.data]);
 
   const { domain: yearlyDomain, ticks: yearlyTicks } = useMemo(() => {
     if (yearlyChartData.length === 0) return niceAxisBounds(0, 100);
@@ -144,10 +144,10 @@ export function Dashboard() {
 
         <div className="section card">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <h2>Jahresvergleich</h2>
+            <h2>Saisonvergleich</h2>
             <span style={{ display: "flex", gap: 12 }}>
               <Link className="hint" to="/statistik">
-                Alle Jahre &amp; Rassen →
+                Alle Saisons &amp; Rassen →
               </Link>
               <Link className="hint" to="/experten">
                 Experten →
@@ -159,7 +159,7 @@ export function Dashboard() {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearlyChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                  <XAxis dataKey="season" tick={{ fontSize: 11 }} />
                   <YAxis domain={yearlyDomain} ticks={yearlyTicks} tick={{ fontSize: 11 }} width={36} />
                   <Tooltip />
                   <Line type="monotone" dataKey="points" name="Ø Punkte" stroke="#4338ca" strokeWidth={2} dot={{ r: 3 }} />
