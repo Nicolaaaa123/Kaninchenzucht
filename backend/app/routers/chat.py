@@ -8,6 +8,7 @@ from app import models, schemas
 from app.auth import get_current_user
 from app.config import settings
 from app.database import get_db
+from app.services import usage
 from app.services.chat_tools import TOOL_DEFS, execute_tool
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
@@ -41,8 +42,14 @@ def chat(
             detail="ANTHROPIC_API_KEY ist nicht gesetzt. Bitte in backend/.env eintragen, um den Chat zu nutzen.",
         )
 
+    # Kontingent des Logins prüfen, bevor etwas kostet
+    usage.check_quota(db, current_user, usage.KIND_CHAT)
+
     client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
     messages = list(payload.messages)
+    api_calls = 0
+    tokens_in = 0
+    tokens_out = 0
 
     try:
         response = None
@@ -54,6 +61,9 @@ def chat(
                 tools=TOOL_DEFS,
                 messages=messages,
             )
+            api_calls += 1
+            tokens_in += getattr(response.usage, "input_tokens", 0) or 0
+            tokens_out += getattr(response.usage, "output_tokens", 0) or 0
             messages.append({"role": "assistant", "content": [b.model_dump() for b in response.content]})
 
             if response.stop_reason != "tool_use":
@@ -79,5 +89,10 @@ def chat(
         raise HTTPException(status_code=502, detail=f"Anthropic-API-Fehler: {e.message}")
     except anthropic.APIConnectionError:
         raise HTTPException(status_code=502, detail="Verbindung zur Anthropic-API fehlgeschlagen.")
+
+    finally:
+        # Auch bei einem Fehler mitten im Ablauf zählen, wenn die API schon angefragt wurde
+        if api_calls:
+            usage.record_usage(db, current_user, usage.KIND_CHAT, tokens_in, tokens_out)
 
     return schemas.ChatResponse(messages=messages)

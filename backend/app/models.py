@@ -1,6 +1,6 @@
 import enum
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from sqlalchemy import (
     Date,
@@ -87,9 +87,26 @@ class User(Base):
     invite_code: Mapped[str] = mapped_column(String(12), unique=True, nullable=False, index=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
     tenant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tenants.id"), nullable=False)
+    # Monatskontingent für kostenpflichtige KI-Funktionen: NULL = unbegrenzt, 0 = aus
+    scan_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    chat_limit: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
 
     tenant: Mapped["Tenant"] = relationship(back_populates="users")
+
+
+class UsageEvent(Base):
+    """Eine genutzte KI-Anfrage (Scan oder Chat) eines Logins -- Grundlage für
+    das Monatskontingent und die Kostenübersicht."""
+
+    __tablename__ = "usage_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    kind: Mapped[str] = mapped_column(String(20), nullable=False)  # scan | chat
+    input_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 
 class UserSession(Base):

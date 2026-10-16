@@ -41,6 +41,8 @@ import type {
   SeasonTotal,
   EvaluatedBreed,
   ExpertsOverview,
+  UsageStatus,
+  UserUsage,
   YearlyWeightStat,
 } from "./types";
 
@@ -95,6 +97,8 @@ export const api = {
       display_name?: string | null;
       is_admin?: boolean;
       join_my_tenant?: boolean;
+      scan_limit?: number | null;
+      chat_limit?: number | null;
     }) =>
       request<User>("/api/auth/users", { method: "POST", body: JSON.stringify(data) }),
     resetPassword: (userId: string, newPassword: string) =>
@@ -136,6 +140,13 @@ export const api = {
     evaluatedBreeds: () => request<EvaluatedBreed[]>("/api/stats/evaluated-breeds"),
     experts: (breedId?: string, colorVariant?: string) =>
       request<ExpertsOverview>(`/api/stats/experts${breedFilterQuery(breedId, colorVariant)}`),
+  },
+
+  usage: {
+    me: () => request<UsageStatus>("/api/usage/me"),
+    overview: () => request<UserUsage[]>("/api/usage/overview"),
+    setLimits: (userId: string, data: { scan_limit: number | null; chat_limit: number | null }) =>
+      request<UserUsage>(`/api/usage/users/${userId}/limits`, { method: "PUT", body: JSON.stringify(data) }),
   },
 
   feeds: {

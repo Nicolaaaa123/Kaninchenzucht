@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { BottomNav } from "./components/BottomNav";
 import { ChatFab } from "./components/ChatFab";
 import { MoonIcon, SunIcon } from "./components/Icons";
@@ -24,12 +24,16 @@ import { LitterNew } from "./pages/LitterNew";
 import { StallLabels } from "./pages/StallLabels";
 import { YearlyStats } from "./pages/YearlyStats";
 import { Experts } from "./pages/Experts";
+import { Privacy } from "./pages/Privacy";
 
 function AppShell() {
   const { theme, toggleTheme } = useTheme();
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return null;
+  // Datenschutz-Information ist auch ohne Anmeldung einsehbar
+  if (!user && location.pathname === "/datenschutz") return <Privacy standalone />;
   if (!user) return <Login />;
 
   return (
@@ -69,6 +73,7 @@ function AppShell() {
           <Route path="/chat" element={<Chat />} />
           <Route path="/statistik" element={<YearlyStats />} />
           <Route path="/experten" element={<Experts />} />
+          <Route path="/datenschutz" element={<Privacy />} />
           <Route path="/konto" element={<Account />} />
         </Routes>
       </main>

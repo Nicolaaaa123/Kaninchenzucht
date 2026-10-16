@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export function Login() {
@@ -55,6 +56,9 @@ export function Login() {
         </button>
         <p className="hint" style={{ marginTop: 12, textAlign: "center" }}>
           Logins werden vom Administrator vergeben.
+        </p>
+        <p className="hint" style={{ textAlign: "center" }}>
+          <Link to="/datenschutz">Datenschutz</Link>
         </p>
       </form>
     </div>

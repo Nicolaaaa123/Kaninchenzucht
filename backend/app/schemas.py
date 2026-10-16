@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models import AnimalStatus, BreedGroup, BreedingCategory, FeedingStage, Sex
 
@@ -20,6 +20,35 @@ class UserOut(BaseModel):
     is_admin: bool
     invite_code: str
     tenant_id: uuid.UUID
+    scan_limit: int | None = None
+    chat_limit: int | None = None
+
+
+class UsageStatusOut(BaseModel):
+    month: str
+    scan_used: int
+    scan_limit: int | None
+    chat_used: int
+    chat_limit: int | None
+
+
+class UserUsageOut(BaseModel):
+    user_id: uuid.UUID
+    username: str
+    display_name: str | None
+    is_admin: bool
+    scan_limit: int | None
+    chat_limit: int | None
+    scan_used: int
+    chat_used: int
+    input_tokens: int
+    output_tokens: int
+
+
+class UsageLimitsUpdate(BaseModel):
+    # null = unbegrenzt, 0 = nicht freigeschaltet
+    scan_limit: int | None = Field(default=None, ge=0, le=100000)
+    chat_limit: int | None = Field(default=None, ge=0, le=100000)
 
 
 class CreateUserRequest(BaseModel):
@@ -29,6 +58,9 @@ class CreateUserRequest(BaseModel):
     is_admin: bool = False
     # True: das neue Login arbeitet direkt im Bestand des anlegenden Admins
     join_my_tenant: bool = False
+    # Monatskontingent für KI-Funktionen; weggelassen = 0 (nicht freigeschaltet), null = unbegrenzt
+    scan_limit: int | None = Field(default=0, ge=0, le=100000)
+    chat_limit: int | None = Field(default=0, ge=0, le=100000)
 
 
 class MergeRequest(BaseModel):

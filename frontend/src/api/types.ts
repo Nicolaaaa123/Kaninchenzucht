@@ -444,6 +444,29 @@ export interface User {
   is_admin: boolean;
   invite_code: string;
   tenant_id: string;
+  scan_limit: number | null;
+  chat_limit: number | null;
+}
+
+export interface UsageStatus {
+  month: string;
+  scan_used: number;
+  scan_limit: number | null;
+  chat_used: number;
+  chat_limit: number | null;
+}
+
+export interface UserUsage {
+  user_id: string;
+  username: string;
+  display_name: string | null;
+  is_admin: boolean;
+  scan_limit: number | null;
+  chat_limit: number | null;
+  scan_used: number;
+  chat_used: number;
+  input_tokens: number;
+  output_tokens: number;
 }
 
 export interface LitterSummary {

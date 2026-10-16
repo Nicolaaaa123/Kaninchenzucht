@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "../api/client";
 import type { ChatMessage } from "../api/types";
+import { QuotaHint } from "../components/QuotaHint";
 
 const TOOL_LABELS: Record<string, string> = {
   search_animals: "durchsucht Tierbestand",
@@ -52,6 +53,7 @@ export function Chat() {
   return (
     <div>
       <h1>Zucht-Assistent</h1>
+      <QuotaHint kind="chat" refreshKey={messages.length} />
       <p className="hint" style={{ marginBottom: 16 }}>
         Fragen zu deinem Bestand ("welche Tiere haben eine schwache Fellbewertung?", "zeig mir die
         Geschwister von 45245") oder allgemeine Zuchtfragen.

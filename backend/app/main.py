@@ -19,6 +19,7 @@ from app.routers import (
     stall_pages,
     stalls,
     stats,
+    usage,
     weights,
 )
 
@@ -49,6 +50,7 @@ app.include_router(chat.router)
 app.include_router(dashboard.router)
 app.include_router(stats.router)
 app.include_router(litters.router)
+app.include_router(usage.router)
 
 
 @app.get("/api/health")

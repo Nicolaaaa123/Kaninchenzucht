@@ -117,6 +117,8 @@ def create_user(payload: schemas.CreateUserRequest, admin: models.User = Depends
         display_name=payload.display_name.strip() if payload.display_name else None,
         invite_code=generate_invite_code(),
         is_admin=payload.is_admin,
+        scan_limit=payload.scan_limit,
+        chat_limit=payload.chat_limit,
         tenant_id=tenant_id,
     )
     db.add(user)

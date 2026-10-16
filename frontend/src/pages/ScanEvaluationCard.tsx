@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { useAsync } from "../hooks/useAsync";
 import type { ScanResult, ScannedScore } from "../api/types";
 import { animalLabel } from "../utils/animalLabel";
+import { QuotaHint } from "../components/QuotaHint";
 
 export function ScanEvaluationCard() {
   const navigate = useNavigate();
@@ -122,6 +123,7 @@ export function ScanEvaluationCard() {
   return (
     <div>
       <h1>Bewertungskarte scannen</h1>
+      <QuotaHint kind="scan" refreshKey={uploading ? 0 : 1} />
       <p className="hint" style={{ marginBottom: 16 }}>
         Foto der Bewertungskarte aufnehmen oder hochladen. Claude liest die Felder aus — bitte danach
         prüfen und korrigieren, bevor du speicherst. Nichts wird automatisch übernommen.

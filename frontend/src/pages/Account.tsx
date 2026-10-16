@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../api/client";
+import { UserLimits } from "../components/UserLimits";
 import { useAsync } from "../hooks/useAsync";
 import { useAuth } from "../hooks/useAuth";
 
@@ -11,12 +13,16 @@ export function Account() {
   const [merging, setMerging] = useState(false);
 
   const users = useAsync(() => (user?.is_admin ? api.auth.listUsers() : Promise.resolve(null)), [user?.is_admin]);
+  const usageOverview = useAsync(() => (user?.is_admin ? api.usage.overview() : Promise.resolve(null)), [user?.is_admin]);
+  const myUsage = useAsync(() => api.usage.me(), []);
 
   const [newUsername, setNewUsername] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newDisplayName, setNewDisplayName] = useState("");
   const [newIsAdmin, setNewIsAdmin] = useState(false);
   const [newJoinMyTenant, setNewJoinMyTenant] = useState(false);
+  const [newScanLimit, setNewScanLimit] = useState("10");
+  const [newChatLimit, setNewChatLimit] = useState("30");
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<{ username: string; password: string; invite_code: string } | null>(
     null,
@@ -60,6 +66,9 @@ export function Account() {
         display_name: newDisplayName.trim() || null,
         is_admin: newIsAdmin,
         join_my_tenant: newJoinMyTenant,
+        // leer = unbegrenzt, 0 = aus
+        scan_limit: newScanLimit.trim() === "" ? null : Number(newScanLimit),
+        chat_limit: newChatLimit.trim() === "" ? null : Number(newChatLimit),
       });
       setCreatedUser({ username: created.username, password: newPassword, invite_code: created.invite_code });
       setNewUsername("");
@@ -67,6 +76,7 @@ export function Account() {
       setNewDisplayName("");
       setNewIsAdmin(false);
       users.reload();
+      usageOverview.reload();
     } catch (err) {
       setCreateError((err as Error).message);
     } finally {
@@ -133,9 +143,31 @@ export function Account() {
           Gib diesen Code an eine andere Person weiter, damit sie euren Zuchtbestand mit ihrem
           eigenen zusammenschliessen kann (unten bei ihr/über "Bestand zusammenschliessen").
         </p>
-        <button className="btn secondary" style={{ marginTop: 12 }} onClick={logout}>
-          Abmelden
-        </button>
+        {myUsage.data && (
+          <p className="hint" style={{ marginTop: 8 }}>
+            KI-Kontingent diesen Monat — Scans:{" "}
+            {myUsage.data.scan_limit === null
+              ? "unbegrenzt"
+              : myUsage.data.scan_limit === 0
+                ? "nicht freigeschaltet"
+                : `${myUsage.data.scan_used} von ${myUsage.data.scan_limit} genutzt`}
+            {" · "}KI-Anfragen:{" "}
+            {myUsage.data.chat_limit === null
+              ? "unbegrenzt"
+              : myUsage.data.chat_limit === 0
+                ? "nicht freigeschaltet"
+                : `${myUsage.data.chat_used} von ${myUsage.data.chat_limit} genutzt`}
+            .
+          </p>
+        )}
+        <div className="toolbar" style={{ marginTop: 12, marginBottom: 0 }}>
+          <button className="btn secondary" onClick={logout}>
+            Abmelden
+          </button>
+          <Link className="btn secondary" to="/datenschutz">
+            Datenschutz
+          </Link>
+        </div>
       </div>
 
       <div className="card section">
@@ -236,6 +268,31 @@ export function Account() {
                   Im selben Bestand wie ich
                 </label>
               </div>
+              <div className="field">
+                <label htmlFor="new-scan-limit">Scans pro Monat</label>
+                <input
+                  id="new-scan-limit"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder="unbegrenzt"
+                  value={newScanLimit}
+                  onChange={(e) => setNewScanLimit(e.target.value)}
+                />
+              </div>
+              <div className="field">
+                <label htmlFor="new-chat-limit">KI-Anfragen pro Monat</label>
+                <input
+                  id="new-chat-limit"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder="unbegrenzt"
+                  value={newChatLimit}
+                  onChange={(e) => setNewChatLimit(e.target.value)}
+                />
+                <span className="hint">Leer = unbegrenzt, 0 = nicht freigeschaltet. Jederzeit änderbar.</span>
+              </div>
             </div>
             <button className="btn" type="submit" disabled={creating}>
               {creating ? "Lege an…" : "Login anlegen"}
@@ -270,6 +327,9 @@ export function Account() {
                     </button>
                   </div>
                 </div>
+                {usageOverview.data?.find((x) => x.user_id === u.id) && (
+                  <UserLimits row={usageOverview.data.find((x) => x.user_id === u.id)!} onSaved={usageOverview.reload} />
+                )}
                 {resettingUserId === u.id && (
                   <div className="toolbar" style={{ marginTop: 10, marginBottom: 0 }}>
                     {resetError && <div className="error-banner">{resetError}</div>}

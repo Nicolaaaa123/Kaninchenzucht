@@ -62,6 +62,13 @@ class VisionNotConfigured(RuntimeError):
 
 
 def extract_evaluation_card(image_bytes: bytes, media_type: str) -> EvaluationCardExtraction:
+    return extract_evaluation_card_with_usage(image_bytes, media_type)[0]
+
+
+def extract_evaluation_card_with_usage(
+    image_bytes: bytes, media_type: str
+) -> tuple[EvaluationCardExtraction, int, int]:
+    """Wie extract_evaluation_card, liefert zusätzlich (Eingabe-, Ausgabe-Tokens)."""
     if not settings.anthropic_api_key:
         raise VisionNotConfigured(
             "ANTHROPIC_API_KEY ist nicht gesetzt. Bitte in backend/.env eintragen, um den "
@@ -88,4 +95,9 @@ def extract_evaluation_card(image_bytes: bytes, media_type: str) -> EvaluationCa
         ],
         output_format=EvaluationCardExtraction,
     )
-    return response.parsed_output
+    usage = getattr(response, "usage", None)
+    return (
+        response.parsed_output,
+        getattr(usage, "input_tokens", 0) or 0,
+        getattr(usage, "output_tokens", 0) or 0,
+    )

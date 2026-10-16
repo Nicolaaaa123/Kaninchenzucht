@@ -7,7 +7,8 @@ from app import models, schemas
 from app.auth import get_current_user
 from app.database import get_db
 from app.services.matching import match_animal_by_identifier
-from app.services.vision import VisionNotConfigured, extract_evaluation_card
+from app.services import usage
+from app.services.vision import VisionNotConfigured, extract_evaluation_card_with_usage
 
 router = APIRouter(prefix="/api/scan", tags=["scan"])
 
@@ -32,14 +33,18 @@ async def scan_evaluation_card(
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="Bitte ein Foto (JPEG, PNG, WEBP oder HEIC) hochladen")
 
+    # Kontingent des Logins prüfen, bevor etwas kostet
+    usage.check_quota(db, current_user, usage.KIND_SCAN)
+
     image_bytes = await file.read()
     if not image_bytes:
         raise HTTPException(status_code=400, detail="Leere Datei")
 
     try:
-        extraction = extract_evaluation_card(image_bytes, file.content_type)
+        extraction, tokens_in, tokens_out = extract_evaluation_card_with_usage(image_bytes, file.content_type)
     except VisionNotConfigured as e:
         raise HTTPException(status_code=503, detail=str(e))
+    usage.record_usage(db, current_user, usage.KIND_SCAN, tokens_in, tokens_out)
 
     photo_data_uri = f"data:{file.content_type};base64,{base64.standard_b64encode(image_bytes).decode('utf-8')}"
 
