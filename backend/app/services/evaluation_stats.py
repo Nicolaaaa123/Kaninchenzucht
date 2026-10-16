@@ -1,6 +1,7 @@
 """Stärken/Schwächen je Tier: Durchschnitt der eigenen Bewertungspositionen im
 Vergleich zum Durchschnitt aller vorliegenden Bewertungskarten derselben Rasse.
-Überdurchschnittlich = Stärke, unterdurchschnittlich = Schwäche."""
+Überdurchschnittlich = Stärke, unterdurchschnittlich = Schwäche -- aber nur bei einem
+spürbaren Unterschied (MIN_DIFF_PCT), sonst würde auch "−0 %" als Schwäche erscheinen."""
 
 import statistics
 import uuid
@@ -13,6 +14,8 @@ from app import models
 
 MIN_BREED_SAMPLES = 2
 TOP_N = 3
+# Unterschiede unter 1 Prozentpunkt (z.B. 0,2 Punkte bei einer 20er-Position) sind Rauschen
+MIN_DIFF_PCT = 1.0
 
 
 @dataclass
@@ -78,6 +81,6 @@ def strengths_and_weaknesses(
             )
         )
 
-    strengths = sorted((c for c in comparisons if c.diff_pct > 0), key=lambda c: c.diff_pct, reverse=True)[:TOP_N]
-    weaknesses = sorted((c for c in comparisons if c.diff_pct < 0), key=lambda c: c.diff_pct)[:TOP_N]
+    strengths = sorted((c for c in comparisons if c.diff_pct >= MIN_DIFF_PCT), key=lambda c: c.diff_pct, reverse=True)[:TOP_N]
+    weaknesses = sorted((c for c in comparisons if c.diff_pct <= -MIN_DIFF_PCT), key=lambda c: c.diff_pct)[:TOP_N]
     return strengths, weaknesses
