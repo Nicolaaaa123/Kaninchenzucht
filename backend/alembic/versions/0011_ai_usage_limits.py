@@ -1,7 +1,7 @@
 """ai usage limits: per-login monthly quota for scans / chat + usage log
 
-Revision ID: 0010
-Revises: 0009
+Revision ID: 0011
+Revises: 0010
 Create Date: 2026-10-16
 """
 
@@ -9,8 +9,8 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
-revision = "0010"
-down_revision = "0009"
+revision = "0011"
+down_revision = "0010"
 branch_labels = None
 depends_on = None
 
